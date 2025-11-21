@@ -4,6 +4,8 @@
 
 \textbf{Stack overview:} Transform, combine, and refine representational features. Perform nonlinear feature composition, extract abstract concepts, and implement representational changes. Enable complex feature interactions and hierarchical abstraction.
 
+\textbf{MLP Characterization Note:} Mechanisms in this stack are characterized primarily through behavioral evidence and theoretical understanding of MLP function. Unlike attention-based mechanisms, MLP computations lack the same degree of circuit-level tracing. These mechanisms describe computational functions inferred from behavior, ablation studies, and architectural analysis rather than fully traced circuits. Only Nonlinear Composition achieves Tier 1 status through extensive evidence; the other mechanisms remain at Tier 2 pending more detailed mechanistic characterization.
+
 %-----------------------------------------------------------------------------
 \subsubsection{Nonlinear Composition Mechanism}
 \label{mech:nonlinear-composition}
@@ -58,6 +60,10 @@ Extract and represent abstract concepts from concrete features. Perform semantic
 
 \mechfooter{\statusobs}{nonlinear-composition, semantic-integration}
 
+\begin{openquestionsbox}
+\textbf{MLP circuit tracing needed:} While behavioral evidence for hierarchical abstraction is strong, detailed circuit-level understanding remains incomplete. Future research should trace information flow through MLP layers, identify specific neuron populations encoding different abstraction levels, and distinguish this mechanism from general nonlinear composition capabilities.
+\end{openquestionsbox}
+
 %-----------------------------------------------------------------------------
 \subsubsection{Semantic Integration Mechanism}
 \label{mech:semantic-integration}
@@ -85,3 +91,7 @@ Integrate semantic information from multiple sources to build coherent meaning r
 \end{examplebox}
 
 \mechfooter{\statusobs}{abstract-concepts, factual-recall}
+
+\begin{openquestionsbox}
+\textbf{Compositional semantics characterization needed:} Mechanism inferred from behavioral patterns and theoretical understanding of semantic composition. Detailed mechanistic evidence for how MLP neurons implement compositional semantics and context-dependent disambiguation remains limited. SAE-based analysis of semantic features could provide deeper insight.
+\end{openquestionsbox}

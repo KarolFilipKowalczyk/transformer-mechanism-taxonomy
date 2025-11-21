@@ -4,6 +4,8 @@
 
 \textbf{Stack overview:} Detect harmful content, enforce safety policies, and implement refusal mechanisms. Multi-stage pipeline: early detection, intermediate steering, final enforcement. Balance safety with helpfulness through graduated interventions.
 
+\textbf{Evidence Level Note:} Safety mechanisms are primarily characterized through behavioral observation and intervention studies. The multi-stage pipeline (detection $\rightarrow$ enforcement $\rightarrow$ refusal) is inferred from behavioral patterns rather than fully traced circuits. Only Refusal Generation has strong mechanistic evidence (single direction finding~\cite{arditi2024refusal}), achieving Tier 1 status. Other safety mechanisms represent consistent behavioral patterns requiring further mechanistic characterization. This asymmetry reflects the relative recency of safety mechanism research compared to core transformer computations.
+
 %-----------------------------------------------------------------------------
 \subsubsection{Harmful Content Detection Mechanism}
 \label{mech:harmful-content-detection}
@@ -30,7 +32,11 @@ Detect potentially harmful or policy-violating content across multiple categorie
 \exeffect{Write detection flags to residual stream for downstream policy enforcement}
 \end{examplebox}
 
-\mechfooter{\statuswell}{policy-enforcement, refusal-generation}
+\mechfooter{\statusobs}{policy-enforcement, refusal-generation}
+
+\begin{openquestionsbox}
+\textbf{Circuit-level characterization needed:} Detection mechanism inferred from behavioral patterns and ablation studies. Detailed tracing of how detection signals propagate through layers and integrate with enforcement mechanisms remains incomplete. Future research should identify specific components and trace information flow through the safety pipeline.
+\end{openquestionsbox}
 
 %-----------------------------------------------------------------------------
 \subsubsection{Policy Enforcement Mechanism}
@@ -58,7 +64,7 @@ Integrate safety signals and make intermediate policy decisions. Steer generatio
 \exeffect{Informative response with careful safety constraints, not blanket refusal}
 \end{examplebox}
 
-\mechfooter{\statuswell}{harmful-content-detection, refusal-generation, redirection-alternatives}
+\mechfooter{\statusobs}{harmful-content-detection, refusal-generation, redirection-alternatives}
 
 %-----------------------------------------------------------------------------
 \subsubsection{Refusal Generation Mechanism}

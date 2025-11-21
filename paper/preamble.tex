@@ -124,9 +124,11 @@
 \newcommand{\depthinfo}[1]{\textbf{Depth:} \texttt{#1}}
 \newcommand{\primaryimpl}[1]{\textbf{Primary Implementation:} #1}
 \newcommand{\litnames}[1]{\textbf{Literature names:} \textit{#1}}
-\newcommand{\statuswell}{\textsc{Well-documented}}
-\newcommand{\statusobs}{\textsc{Observed}}
-\newcommand{\statusprop}{\textsc{Proposed}}
+\newcommand{\statuswell}{\textsc{Tier-1: Mechanistic}}
+\newcommand{\statusobs}{\textsc{Tier-2: Behavioral}}
+\newcommand{\statusprop}{\textsc{Tier-3: Speculative}}
+\newcommand{\statustierone}{\textsc{Tier-1: Mechanistic}}
+\newcommand{\statustiertwo}{\textsc{Tier-2: Behavioral}}
 \newcommand{\relatedmechs}[1]{\textbf{Related:} #1}
 \newcommand{\statusinfo}[1]{\textbf{Status:} #1}
 
@@ -241,6 +243,23 @@
     boxsep=0pt,
     before skip=0.5em,
     after skip=0.5em
+}
+
+% Open Questions Box
+\newtcolorbox{openquestionsbox}{
+    colback=yellow!5,
+    colframe=orange!40,
+    boxrule=0.5pt,
+    arc=2pt,
+    left=4pt,
+    right=4pt,
+    top=3pt,
+    bottom=3pt,
+    boxsep=0pt,
+    before skip=0.5em,
+    after skip=0.5em,
+    fonttitle=\small\bfseries,
+    title=Open Questions
 }
 
 %-----------------------------------------------------------------------------

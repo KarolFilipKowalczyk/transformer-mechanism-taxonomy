@@ -4,6 +4,8 @@
 
 \textbf{Stack overview:} Retrieve factual information, entity properties, and structured knowledge from model parameters. Move relevant information to output positions and suppress irrelevant content. Enable factual grounding and knowledge-based reasoning.
 
+\textbf{Note:} Memory Consolidation mechanism relocated to Appendix A (appears to be emergent composition of Factual Recall + Schema Retrieval + Entity Grounding rather than independent mechanism).
+
 %-----------------------------------------------------------------------------
 \subsubsection{Factual Recall Mechanism}
 \label{mech:factual-recall}
@@ -140,31 +142,3 @@ Move retrieved information to output positions where needed for generation. Rout
 \end{examplebox}
 
 \mechfooter{\statuswell}{entity-grounding, factual-recall, repetition-cycle-recognition}
-
-%-----------------------------------------------------------------------------
-\subsubsection{Memory Consolidation Mechanism}
-\label{mech:memory-consolidation}
-
-\noindent\depthinfo{0.50--0.75 (M-L)} | \primaryimpl{MLP neurons + Attention heads} | \litnames{knowledge integration, cross-memory synthesis, multi-source retrieval}
-
-\begin{functiondesc}
-Integrate multiple memory sources (facts, schemas, entities) into coherent knowledge representations. Handle queries requiring synthesis across memory types: entity properties combined with factual knowledge within schematic frameworks. Enable cross-memory integration for complex questions. Support knowledge composition beyond single-fact retrieval. Coordinate between factual recall, schema retrieval, and entity grounding mechanisms.
-\end{functiondesc}
-
-\begin{implementationbox}
-\mlpimpl{Memory integration neurons (M-L, 0.50--0.75) coordinate information from multiple memory types. Encode integration patterns for cross-memory queries.}\\
-\attnimpl{Cross-memory attention heads (L, 0.60--0.75) gather information from diverse memory sources for unified response generation.}\\
-\circuitimpl{Multi-source retrieval $\rightarrow$ integration $\rightarrow$ coherent output. Coordinates factual recall, schema, and entity mechanisms.}
-\end{implementationbox}
-
-\begin{ablationbox}
-\textbf{Expected ablation:} Uncertain - may be emergent behavior rather than distinct mechanism. Potential moderate degradation in complex multi-source queries. Reduced ability to synthesize information across memory types. Queries requiring integration may receive fragmented responses. Further empirical validation needed.
-\end{ablationbox}
-
-\begin{examplebox}
-\exinput{``Describe Einstein's contributions to physics in the context of early 20th century science.''}\\
-\exbehavior{Retrieve Einstein facts, access historical context schema, integrate entity properties with temporal framework}\\
-\exeffect{Synthesized response combining entity knowledge, factual content, and schematic organization}
-\end{examplebox}
-
-\mechfooter{\statusprop}{factual-recall, schema-retrieval, entity-grounding}

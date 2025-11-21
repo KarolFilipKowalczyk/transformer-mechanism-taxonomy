@@ -93,16 +93,66 @@ Transformer layers exhibit systematic functional specialization across depth. Th
 
 This enables architecture-independent mechanism descriptions: a mechanism at 0.40 relative depth occupies similar functional space in 12-layer (layer 5), 48-layer (layer 19), and 96-layer (layer 38) models.
 
-\subsection{Methodology and Confidence Levels}
+\subsection{Methodology and Evidence Standards}
 
 Mechanisms are identified through converging evidence from five techniques: attention pattern analysis, ablation studies, activation patching, logit attribution, and sparse autoencoder analysis.
 
-\textbf{Confidence levels:}
-\begin{itemize}[itemsep=0.2em]
-\item \textbf{Well-documented:} Extensive empirical support across multiple models
-\item \textbf{Observed:} Solid evidence but less extensive characterization
-\item \textbf{Proposed:} Reasonable hypotheses with preliminary evidence
+All mechanisms in this taxonomy are validated through systematic empirical investigation. However, the depth of mechanistic understanding varies significantly. To address this, we employ a tier system reflecting evidence quality and a formal independence framework.
+
+\subsection{Mechanism Independence Criteria}
+
+A computational pattern qualifies as an independent mechanism if it meets \textbf{all four criteria}:
+
+\textbf{1. Distinct Ablation Signature:} Removal produces unique behavioral deficits not fully explained by ablating other mechanisms. The mechanism must have identifiable functional consequences that distinguish it from related mechanisms.
+
+\textit{Example:} Removing induction heads specifically impairs few-shot learning while preserving other pattern-matching capabilities. This distinct signature establishes independence from general pattern detection.
+
+\textbf{2. Separable Implementation:} Can be localized to specific components or circuits that are not completely shared with other mechanisms. The mechanism may share some components but must have unique implementing structure.
+
+\textit{Example:} The IOI circuit shares duplicate-token heads with pattern completion but has unique S-inhibition and name-mover coordination, establishing separable implementation.
+
+\textbf{3. Independent Activation:} Can be activated or suppressed independently of related mechanisms through targeted interventions. The mechanism must be controllable without necessarily affecting all related computations.
+
+\textit{Example:} Induction heads can be ablated without removing all duplicate-token functionality, demonstrating independent activation control.
+
+\textbf{4. Non-Compositional:} Not fully explainable as a simple composition of other documented mechanisms. Emergent behaviors from mechanism interaction don't qualify as separate mechanisms unless they develop distinct implementation.
+
+\textit{Counterexample:} Memory consolidation appears to be the emergent composition of factual recall + schema retrieval + entity grounding, lacking unique implementing structure. It fails the non-compositional criterion.
+
+These criteria, informed by causal abstraction frameworks~\cite{geiger2021causal} and rigorous testing methodologies~\cite{chan2022causal}, provide systematic standards for mechanism identification and prevent taxonomic inflation from classifying every behavioral pattern as an independent mechanism.
+
+\subsection{Confidence Tiers}
+
+Mechanisms are categorized by the strength and type of empirical support:
+
+\textbf{Tier 1 - Mechanistic Understanding:}
+\begin{itemize}[itemsep=0.1em]
+\item Circuit-level understanding with identified implementing components
+\item Extensive ablation studies demonstrating causal role across multiple models
+\item Reproducible using standard interpretability techniques
+\item Clear implementation specifications enabling cross-architecture identification
+\item \textit{Examples:} Induction mechanism, IOI circuit, factual recall, position-based processing
 \end{itemize}
+
+\textbf{Tier 2 - Behavioral Evidence:}
+\begin{itemize}[itemsep=0.1em]
+\item Consistent behavioral evidence across models and contexts
+\item Partial mechanistic understanding with some component identification
+\item Preliminary ablation or intervention studies showing functional role
+\item Implementation details partially characterized but incomplete
+\item \textit{Examples:} Algorithmic continuation, analogical mapping, causal inference, most reasoning mechanisms
+\end{itemize}
+
+\textbf{Tier 3 - Speculative (Appendix Only):}
+\begin{itemize}[itemsep=0.1em]
+\item Reasonable hypotheses with preliminary behavioral observations
+\item Insufficient mechanistic characterization for main taxonomy inclusion
+\item May be emergent behaviors from other mechanism composition
+\item Require substantial additional research for validation
+\item Relocated to Appendix A: "Emerging Mechanisms Under Investigation"
+\end{itemize}
+
+\textbf{Current taxonomy composition:} 33 mechanisms in main taxonomy (11 Tier 1, 22 Tier 2), with 3 mechanisms relocated to appendix. This distribution reflects the current state of mechanistic interpretability: strong understanding of core attention-based mechanisms, behavioral characterization of many MLP and reasoning mechanisms, and substantial work remaining to achieve complete mechanistic understanding across all computational functions.
 
 %=============================================================================
 % MECHANISM STACKS OVERVIEW
@@ -111,13 +161,13 @@ Mechanisms are identified through converging evidence from five techniques: atte
 \section{Eight Functional Stacks}
 \label{sec:stacks-overview}
 
-The taxonomy organizes 35 mechanisms into eight functional stacks:
+The taxonomy organizes 33 mechanisms into eight functional stacks:
 
-\textbf{1. Pattern \& Sequential Stack} (5 mechanisms, 0.05--0.65): Pattern detection and completion, sequence continuation, positional processing.
+\textbf{1. Pattern \& Sequential Stack} (3 mechanisms, 0.05--0.65): Pattern detection and completion, sequence continuation, positional processing.
 
-\textbf{2. Memory \& Knowledge Stack} (6 mechanisms, 0.08--0.85): Factual recall, entity grounding, schema retrieval, output routing.
+\textbf{2. Memory \& Knowledge Stack} (5 mechanisms, 0.35--0.85): Factual recall, entity grounding, schema retrieval, output routing.
 
-\textbf{3. Routing \& Context Stack} (5 mechanisms, 0.10--0.85): Relevance filtering, attention focusing, task routing, context aggregation.
+\textbf{3. Routing \& Context Stack} (4 mechanisms, 0.35--0.75): Relevance filtering, attention focusing, task routing, context aggregation.
 
 \textbf{4. Feature Transformation Stack} (3 mechanisms, 0.20--0.80): Nonlinear composition, abstract concept formation, semantic integration.
 
@@ -136,7 +186,7 @@ The taxonomy organizes 35 mechanisms into eight functional stacks:
 \section{Mechanism Catalog}
 \label{sec:catalog}
 
-This section catalogs mechanisms using a compressed format: \textbf{Function} describes computational transformation, \textbf{Implementation} specifies components, \textbf{Ablation} summarizes behavioral changes when removed, \textbf{Example} provides concrete input→mechanism→output.
+This section catalogs mechanisms using a compressed format: \textbf{Function} describes computational transformation, \textbf{Implementation} specifies components, \textbf{Ablation} summarizes behavioral changes when removed, \textbf{Example} provides concrete inputâ†’mechanismâ†’output.
 
 % Individual stack files
 \input{stack_pattern_sequential}
@@ -163,9 +213,9 @@ This section catalogs mechanisms using a compressed format: \textbf{Function} de
 
 \textbf{Depth-based cascades:} Mechanisms compose across depth in systematic patterns:
 \begin{itemize}[itemsep=0.1em]
-\item Early→Middle: Surface features prepare semantic processing
-\item Middle→Late: Retrieved information feeds integration and routing
-\item Late→Final: Content generation meets constraint enforcement
+\item Earlyâ†’Middle: Surface features prepare semantic processing
+\item Middleâ†’Late: Retrieved information feeds integration and routing
+\item Lateâ†’Final: Content generation meets constraint enforcement
 \end{itemize}
 
 \subsection{Relationship to Prior Work}
@@ -180,15 +230,46 @@ This taxonomy integrates findings from:
 
 The contribution is integration through mechanism-first organization.
 
+\subsection{The MLP Characterization Gap}
+
+This taxonomy reveals significant asymmetry in mechanistic understanding between attention and MLP components:
+
+\textbf{Attention mechanisms} (15 total, including attention-primary mechanisms): Well-characterized through attention pattern analysis, head-specific ablation, and circuit tracing. Tier 1 mechanisms like induction and IOI circuits have detailed component-level understanding with traced information flow across layers.
+
+\textbf{MLP mechanisms} (18 mechanisms involve MLPs, 12 MLP-primary): Characterized primarily through:
+\begin{itemize}[itemsep=0.1em]
+\item Behavioral observation and ablation at layer level
+\item Theoretical understanding of MLP function (key-value memory framework~\cite{geva2021transformer})
+\item Sparse autoencoder feature analysis~\cite{bricken2023towards}
+\item Neuron activation studies and knowledge localization~\cite{meng2022locating}
+\end{itemize}
+
+However, MLP mechanisms lack the circuit-level tracing available for attention. We understand \textit{what} MLPs compute (factual recall, semantic integration, abstract concepts) primarily through behavioral inference and theoretical frameworks rather than traced information flow through specific neuron populations.
+
+This gap explains why many MLP-involving mechanisms are Tier 2 (behavioral evidence) rather than Tier 1 (mechanistic understanding). Factual recall achieves Tier 1 status through extensive neuron-level studies, but most other MLP mechanisms remain at Tier 2. Future research should prioritize MLP circuit tracing to achieve parity with attention mechanism understanding.
+
+\textbf{Promising directions:}
+\begin{itemize}[itemsep=0.1em]
+\item Gradient-based MLP circuit attribution techniques
+\item Feature-level ablation using sparse autoencoder features as units
+\item Cross-layer MLP composition analysis tracking feature flow
+\item Systematic neuron population studies identifying functional clusters
+\item Causal tracing of MLP contributions to specific behavioral outcomes
+\end{itemize}
+
 \subsection{Limitations}
 
 \textbf{Incomplete coverage:} Many capabilities (strategic planning, creative generation, abstract reasoning) lack mechanistic understanding.
 
-\textbf{Empirical gaps:} Some mechanisms (memory consolidation, structural boundary tracking) need stronger validation.
+\textbf{Tier imbalance:} Only 33\% of mechanisms achieve Tier 1 (mechanistic understanding). The remaining 67\% rely primarily on behavioral evidence. This reflects the current state of interpretability research but indicates substantial work remains to achieve full mechanistic characterization across all computational functions.
+
+\textbf{Independence criteria challenges:} Some included mechanisms may fail strict independence tests under future scrutiny. The four-criterion framework provides structure but borderline cases remain. For example, is Focused Attention truly independent of Relevance Filtering, or a refinement stage of the same mechanism? Further research may reveal that some Tier 2 mechanisms are compositional rather than independent.
+
+\textbf{Empirical gaps:} Several Tier 2 mechanisms need stronger validation through systematic ablation studies and component identification. The behavioral evidence is consistent but mechanistic understanding incomplete.
 
 \textbf{Architecture dependence:} Focus on decoder-only transformers; generalization to other architectures requires investigation.
 
-\textbf{Dynamic activation:} Mechanisms activate conditionally based on context; static descriptions don't capture this.
+\textbf{Dynamic activation:} Mechanisms activate conditionally based on context; static descriptions don't capture this context-dependent engagement.
 
 \textbf{Mechanism interactions:} Interference patterns between mechanisms (safety vs. helpfulness, format vs. reasoning) remain undercharacterized.
 
@@ -213,18 +294,26 @@ The contribution is integration through mechanism-first organization.
 \section{Conclusion}
 \label{sec:conclusion}
 
-This taxonomy provides mechanistic interpretability with standardized vocabulary bridging research traditions, functional organization revealing computational architecture, and explicit multi-component integration patterns. The framework enables researchers to communicate about computational functions while maintaining precision about implementations.
+This taxonomy provides mechanistic interpretability with standardized vocabulary bridging research traditions, functional organization revealing computational architecture, explicit multi-component integration patterns, and formal independence criteria establishing rigorous standards for mechanism identification. The framework enables researchers to communicate about computational functions while maintaining precision about implementations and evidence quality.
+
+The taxonomy catalogs 33 mechanisms (11 Tier 1, 22 Tier 2) meeting independence criteria, with 3 additional patterns relocated to an appendix for future investigation. This distribution honestly reflects the current state of the field: strong mechanistic understanding of core attention-based mechanisms, behavioral characterization of MLP and reasoning mechanisms, and substantial work remaining to achieve complete circuit-level understanding.
 
 \textbf{Adoption guidelines:}
 \begin{enumerate}[itemsep=0.2em]
 \item Use canonical mechanism names with literature cross-references
 \item Specify implementation details: components, depths, circuit patterns
+\item Indicate evidence tier (Tier 1: Mechanistic, Tier 2: Behavioral)
+\item Apply independence criteria when proposing new mechanisms
 \item Map components to mechanisms they implement
 \item Use relative depth notation for cross-architecture comparison
-\item Mark confidence levels (well-documented/observed/proposed)
 \end{enumerate}
 
-The taxonomy represents progress toward complete mechanistic understanding: explaining transformer capabilities through mechanism composition from architectural primitives. As interpretability research continues, mechanism-first organization will integrate findings into cumulative mechanistic knowledge.
+The taxonomy represents progress toward complete mechanistic understanding: explaining transformer capabilities through mechanism composition from architectural primitives. As interpretability research continues, mechanism-first organization with rigorous independence criteria will integrate findings into cumulative mechanistic knowledge while maintaining appropriate epistemic humility about evidence limitations.
+
+%=============================================================================
+% APPENDIX
+%=============================================================================
+\input{appendix_emerging}
 
 %=============================================================================
 % BIBLIOGRAPHY

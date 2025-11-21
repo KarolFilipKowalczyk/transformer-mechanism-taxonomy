@@ -4,6 +4,8 @@
 
 \textbf{Stack overview:} Determine which information is relevant and route attention accordingly. Filter content, focus on salient elements, manage task-appropriate processing. Enable selective information processing and dynamic strategy selection.
 
+\textbf{Note:} Structural Boundary Tracking mechanism relocated to Appendix A (may be component of Position-Based Processing or Format Enforcement rather than independent mechanism).
+
 %-----------------------------------------------------------------------------
 \subsubsection{Relevance Filtering Mechanism}
 \label{mech:relevance-filtering}
@@ -39,6 +41,8 @@ Identify relevant information from context and filter irrelevant content. Comput
 
 \begin{functiondesc}
 Concentrate attention on most salient elements for immediate generation step. Implement dynamic focus allocation: suppress less important content, amplify critical information. More selective than relevance filtering, attending to 5--20\% of context. Determine exactly which tokens should influence next token prediction. Shift focus dynamically as generation proceeds. Enable precise, targeted responses rather than diffuse answers. Refinement stage after content understanding established.
+
+\textbf{Relationship to Relevance Filtering:} Operates as a refinement stage of the same attention allocation process. Relevance Filtering (M, 0.35--0.60) provides broad topical filtering, while Focused Attention (L, 0.65--0.80) implements precision selection. Whether these constitute truly independent mechanisms or stages of a unified attention allocation process remains an open question requiring further investigation.
 \end{functiondesc}
 
 \begin{implementationbox}
@@ -112,30 +116,3 @@ Aggregate broad contextual information to inform generation. Build global repres
 \end{examplebox}
 
 \mechfooter{\statusobs}{focused-attention, style-modulation}
-
-%-----------------------------------------------------------------------------
-\subsubsection{Structural Boundary Tracking Mechanism}
-\label{mech:structural-boundary-tracking}
-
-\noindent\depthinfo{0.10--0.50 (E-M)} | \primaryimpl{Attention heads} | \litnames{boundary detection, structure tracking, delimiter attention}
-
-\begin{functiondesc}
-Track structural boundaries: sentence/paragraph boundaries, section markers, formatting delimiters, nested structure levels. Enable structure-aware processing for routing and formatting decisions. Detect organizational markers and maintain awareness of document structure. Support context segmentation based on structural divisions. Serve multiple downstream mechanisms requiring structural awareness.
-\end{functiondesc}
-
-\begin{implementationbox}
-\attnimpl{Boundary-detection heads (E-M, 0.10--0.45) attend to delimiter tokens and structural markers. Implement structure-tracking patterns for nested organization.}\\
-\circuitimpl{Early detection (E) $\rightarrow$ structural awareness throughout depth. Feeds routing decisions, format enforcement, context segmentation. Serves multiple mechanisms requiring structural information.}
-\end{implementationbox}
-
-\begin{ablationbox}
-\textbf{Expected ablation:} Uncertain - may be component of format enforcement or position processing rather than distinct mechanism. Potential moderate degradation in structure-aware processing. Reduced sensitivity to document organization. Further empirical validation needed to confirm as independent mechanism.
-\end{ablationbox}
-
-\begin{examplebox}
-\exinput{``[Document with multiple sections marked by headers]''}\\
-\exbehavior{Track paragraph boundaries for context segmentation, detect section markers for routing decisions}\\
-\exeffect{Enable structure-aware attention allocation and generation}
-\end{examplebox}
-
-\mechfooter{\statusprop}{position-based-processing, format-enforcement}

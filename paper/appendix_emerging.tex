@@ -1,0 +1,163 @@
+%=============================================================================
+% APPENDIX A: EMERGING MECHANISMS UNDER INVESTIGATION
+%=============================================================================
+
+\clearpage
+\appendix
+
+\section{Emerging Mechanisms Under Investigation}
+\label{appendix:emerging}
+
+This appendix catalogs computational patterns that show preliminary evidence but do not yet meet the independence criteria (Section~\ref{sec:framework}) for inclusion in the main taxonomy. These patterns may be:
+
+\begin{itemize}[itemsep=0.2em]
+\item Emergent behaviors from documented mechanism composition
+\item Patterns requiring stronger mechanistic characterization
+\item Potentially valid mechanisms needing independent confirmation across models
+\item Components of other mechanisms rather than independent computational functions
+\end{itemize}
+
+Researchers are encouraged to investigate these patterns and provide evidence for or against their status as independent mechanisms using the four-criterion framework: (1) distinct ablation signature, (2) separable implementation, (3) independent activation, (4) non-compositional nature.
+
+%-----------------------------------------------------------------------------
+\subsection{Memory Consolidation}
+\label{app:memory-consolidation}
+
+\textbf{Hypothesized Function:} Integrate multiple memory sources (facts, schemas, entities) into coherent knowledge representations for complex queries requiring synthesis across memory types.
+
+\textbf{Current Evidence:}
+\begin{itemize}[itemsep=0.1em]
+\item Behavioral observations suggest multi-source integration for complex queries
+\item Ablation at layer level shows some degradation on knowledge-intensive tasks
+\item Queries like ``Describe Einstein's contributions to physics in the context of early 20th century science'' appear to require coordinated retrieval
+\end{itemize}
+
+\textbf{Independence Challenge - Fails Criterion 4 (Non-Compositional):}
+
+This pattern appears to be emergent composition of three documented mechanisms:
+\begin{itemize}[itemsep=0.1em]
+\item \textbf{Factual Recall} (Section~\ref{mech:factual-recall}): Retrieves Einstein facts
+\item \textbf{Schema Retrieval} (Section~\ref{mech:schema-retrieval}): Accesses ``early 20th century science'' temporal/contextual framework
+\item \textbf{Entity Grounding} (Section~\ref{mech:entity-grounding}): Links Einstein entity across mentions
+\end{itemize}
+
+No unique implementing structure has been identified beyond the coordination of these three mechanisms. The ``integration'' appears to occur through standard attention-MLP composition rather than specialized circuitry.
+
+\textbf{Research Needed:}
+\begin{itemize}[itemsep=0.1em]
+\item Demonstrate ablation effects not explained by ablating constituent mechanisms
+\item Identify unique implementing components (attention heads or MLP neurons) not shared with Factual Recall, Schema Retrieval, or Entity Grounding
+\item Show independent activation: can Memory Consolidation be suppressed while preserving the three constituent mechanisms?
+\item Alternative hypothesis: This may represent general compositional capability rather than a specific mechanism
+\end{itemize}
+
+%-----------------------------------------------------------------------------
+\subsection{Local Context Modeling}
+\label{app:local-context-modeling}
+
+\textbf{Hypothesized Function:} Process immediate local context (1--5 tokens) for instruction markers, syntactic structure, and local patterns. Distinct from Pattern Completion which operates at broader scale (10+ tokens).
+
+\textbf{Current Evidence:}
+\begin{itemize}[itemsep=0.1em]
+\item Behavioral observations of instruction detection in early layers
+\item Format-sensitive tasks appear to rely on early-layer processing
+\item N-gram neurons encode local sequential patterns
+\end{itemize}
+
+\textbf{Independence Challenge - May Be Component of Pattern Completion:}
+
+Several concerns about independence:
+\begin{enumerate}[itemsep=0.1em]
+\item \textbf{Scale distinction unclear:} Is processing 1--5 tokens fundamentally different from 10+ tokens, or just Pattern Completion at smaller scale?
+\item \textbf{Shared implementation:} Uses same components (n-gram neurons, early attention heads) as Pattern Completion
+\item \textbf{Separability unclear:} Cannot ablate ``local'' pattern detection without affecting broader pattern detection
+\item \textbf{May be implementation detail:} Early-layer operation may be \textit{how} Pattern Completion works rather than a separate mechanism
+\end{enumerate}
+
+\textbf{Research Needed:}
+\begin{itemize}[itemsep=0.1em]
+\item Demonstrate that local context processing (1--5 tokens) can be ablated independently of broader pattern completion (10+ tokens)
+\item Identify components that respond specifically to local context without participating in broader pattern detection
+\item Show qualitatively different computation for local vs. broader scales
+\item Alternative hypothesis: This may describe the early-layer implementation of Pattern Completion rather than an independent mechanism
+\end{itemize}
+
+%-----------------------------------------------------------------------------
+\subsection{Structural Boundary Tracking}
+\label{app:structural-boundary-tracking}
+
+\textbf{Hypothesized Function:} Track structural boundaries (sentence, paragraph, section markers, formatting delimiters, nested structure levels) to enable structure-aware processing.
+
+\textbf{Current Evidence:}
+\begin{itemize}[itemsep=0.1em]
+\item Weak behavioral evidence from format-sensitive tasks
+\item Some attention heads appear to attend to delimiter tokens
+\item Models show some sensitivity to document structure
+\end{itemize}
+
+\textbf{Independence Challenge - Insufficient Evidence and Potential Component Status:}
+
+Multiple concerns:
+\begin{enumerate}[itemsep=0.1em]
+\item \textbf{Insufficient mechanistic evidence:} Primarily inferred from behavioral observations without clear component identification
+\item \textbf{May be Position-Based Processing:} Structural boundaries may be tracked through positional encodings rather than specialized mechanism
+\item \textbf{May be Format Enforcement component:} Boundary awareness may be an implementation detail of how Format Enforcement works
+\item \textbf{Weak ablation signature:} No clear demonstration of what behaviors are uniquely lost when ``boundary tracking'' is removed
+\end{enumerate}
+
+\textbf{Research Needed:}
+\begin{itemize}[itemsep=0.1em]
+\item Identify specific components (attention heads or MLP neurons) dedicated to boundary detection
+\item Demonstrate ablation effects distinct from Position-Based Processing and Format Enforcement
+\item Show structure tracking operates independently of positional information
+\item Clarify whether this describes a mechanism or an implementation detail of other mechanisms
+\item Alternative hypothesis: This may be an aspect of Position-Based Processing applied to structural markers
+\end{itemize}
+
+%-----------------------------------------------------------------------------
+\subsection{Repetition \& Cycle Recognition}
+\label{app:repetition-cycle-recognition}
+
+\textbf{Note:} This pattern was merged into Pattern Completion Mechanism (Section~\ref{mech:pattern-completion}) as an implementation detail rather than relegated to this appendix. We include brief notes here for completeness.
+
+\textbf{Status:} Repetition detection via duplicate-token heads serves multiple downstream mechanisms (pattern completion, entity tracking, output routing). However, this multi-purpose functionality represents component reuse rather than an independent mechanism. Duplicate-token heads are now documented as part of the Pattern Completion circuit implementation.
+
+\textbf{Rationale for merger:} Repetition detection doesn't meet Criterion 2 (Separable Implementation) - the duplicate-token heads are shared across Pattern Completion, Entity Grounding, and Output Routing. This is computational reuse of components rather than an independent mechanism.
+
+%-----------------------------------------------------------------------------
+\subsection{Guidelines for Future Mechanism Proposals}
+
+When proposing new mechanisms, researchers should:
+
+\textbf{1. Apply Independence Criteria:}
+\begin{itemize}[itemsep=0.1em]
+\item Demonstrate distinct ablation signature not explained by other mechanisms
+\item Identify separable implementing components with some unique structure
+\item Show independent activation through targeted interventions
+\item Prove non-compositional: not just emergent behavior from documented mechanisms
+\end{itemize}
+
+\textbf{2. Provide Strong Evidence:}
+\begin{itemize}[itemsep=0.1em]
+\item Systematic ablation studies across multiple models
+\item Component-level identification (specific attention heads, MLP neurons, or circuits)
+\item Reproducible demonstrations using standard techniques
+\item Clear behavioral predictions that distinguish from similar mechanisms
+\end{itemize}
+
+\textbf{3. Consider Alternative Explanations:}
+\begin{itemize}[itemsep=0.1em]
+\item Could this be component reuse rather than a new mechanism?
+\item Could this be composition of existing mechanisms?
+\item Could this be an implementation detail of a broader mechanism?
+\item Could this be explained by architectural primitives (position encoding, attention masking)?
+\end{itemize}
+
+\textbf{4. Document Limitations:}
+\begin{itemize}[itemsep=0.1em]
+\item Acknowledge evidence gaps and alternative interpretations
+\item Specify which independence criteria are well-supported vs. uncertain
+\item Identify research needed to definitively establish independence
+\end{itemize}
+
+The goal is cumulative mechanistic knowledge: each validated mechanism should advance understanding rather than multiply terminology for the same computational functions.
