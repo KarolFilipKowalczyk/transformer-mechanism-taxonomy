@@ -1,0 +1,152 @@
+%=============================================================================
+\subsection{Composition \& Integration Stack}
+\label{sec:composition-stack}
+
+\textbf{Stack overview:} Combine multiple mechanisms into integrated behaviors. Enable cross-layer coordination, multi-component circuits, and emergent capabilities from mechanism interaction. Provide architectural patterns enabling complex computation.
+
+%-----------------------------------------------------------------------------
+\subsubsection{Cross-Layer Circuits Mechanism}
+\label{mech:cross-layer-circuits}
+
+\noindent\depthinfo{Spans multiple layers (E $\rightarrow$ M $\rightarrow$ L $\rightarrow$ F)} | \primaryimpl{Multi-layer circuits} | \litnames{circuit composition, depth-based specialization, emergent capabilities}
+
+\begin{functiondesc}
+Implement complex behaviors through coordinated multi-layer computation pipelines. Organize computation hierarchically across depth with increasing abstraction. Compose specialized mechanisms across 5--30 layers into integrated circuits. Enable staged processing: early layers detect patterns, middle layers retrieve knowledge, late layers route to output. Support mechanism specialization by depth: each layer contributes specific computational step. Enable emergent capabilities through sufficient mechanism diversity and composition depth. Demonstrate system-level behaviors exceeding individual component capabilities.
+\end{functiondesc}
+
+\begin{implementationbox}
+\circuitimpl{Documented circuits: Induction (3--8 layers: previous-token $\rightarrow$ induction $\rightarrow$ MLP), IOI (8--12 layers: duplicate-token $\rightarrow$ S-inhibition $\rightarrow$ name-mover), Factual recall (5--15 layers: entity $\rightarrow$ MLP retrieval $\rightarrow$ output routing), Safety pipeline (E $\rightarrow$ F: detection $\rightarrow$ enforcement $\rightarrow$ refusal).}\\
+\archimpl{Hierarchical depth organization: Early (0.00--0.25): surface processing (syntax, delimiters, detection). Middle (0.25--0.70): core computation (facts, entities, reasoning). Late (0.70--0.88): integration (routing, strategy, enforcement). Final (0.88--1.00): constraints (safety, formatting, completion).}\\
+General pattern: detection/preparation (E) $\rightarrow$ core computation (M) $\rightarrow$ integration (L) $\rightarrow$ output (L-F).
+\end{implementationbox}
+
+\begin{ablationbox}
+\textbf{Expected ablation:} Circuit-dependent effects. Induction circuit ablation: severe ICL loss. IOI circuit ablation: major entity routing failure. Factual circuit ablation: significant knowledge retrieval degradation. Safety pipeline ablation: critical safety failure. Circuit-specific rather than universal impact. Emergent capabilities lost when constituent mechanisms ablated.
+\end{ablationbox}
+
+\begin{examplebox}
+\exinput{``Mary and John went to store. Mary gave book to...'' [IOI circuit]}\\
+\exbehavior{Duplicate-token detects ``Mary'' repeat (M) $\rightarrow$ S-inhibition suppresses ``Mary'' (L) $\rightarrow$ name-mover outputs ``John'' (L)}\\
+\exeffect{Correct indirect object through multi-stage circuit coordination}
+
+\vspace{0.3em}
+\textbf{Emergent capability - Few-shot learning:} Emerges from induction + entity tracking + output routing composition. Not explicitly trained but enables learning from 2--3 examples without parameter updates.
+\end{examplebox}
+
+\mechfooter{\statuswell}{pattern-completion, factual-recall, output-routing}
+
+%-----------------------------------------------------------------------------
+\subsubsection{Multi-Head Coordination Mechanism}
+\label{mech:multi-head-coordination}
+
+\noindent\depthinfo{All layers} | \primaryimpl{Architectural pattern} | \litnames{parallel processing, multi-aspect attention, head coordination}
+
+\begin{functiondesc}
+Enable parallel processing of multiple attention patterns within single layer. Allow different heads to focus on different relationships simultaneously: one head tracks entities, another tracks syntax, another handles facts. Combine multiple attention perspectives into unified representation. Support specialized head functions operating in parallel. Enable rich, multi-faceted information routing. Aggregate head contributions through linear combination and projection. Provide computational flexibility within layers through attention pattern diversity.
+\end{functiondesc}
+
+\begin{implementationbox}
+\archimpl{Each attention layer contains multiple heads (8--64 depending on model). Each head independently computes attention: $\text{head}_i = \text{Attn}(Q_i, K_i, V_i)$. Outputs concatenated and projected: $\text{MultiHead} = \text{Proj}([\text{head}_1; \ldots; \text{head}_h])$.}\\
+\circuitimpl{Parallel execution of diverse attention patterns. Heads specialize in different functions but contribute to shared residual stream. Enables simultaneous processing of multiple relationship types.}
+\end{implementationbox}
+
+\begin{ablationbox}
+\textbf{Expected ablation:} Severe capability reduction. Model loses parallel processing power and specialization. Single attention pattern cannot handle multiple relationship types simultaneously. Major degradation across all tasks requiring multi-faceted attention. Reduced expressiveness and computational flexibility.
+\end{ablationbox}
+
+\begin{examplebox}
+\exinput{``Alice told Bob about Paris while discussing travel''}\\
+\exbehavior{Head 1: track entities (Alice, Bob, Paris); Head 2: extract facts (told, about); Head 3: maintain discourse (discussing travel); parallel execution}\\
+\exeffect{Simultaneous processing of multiple relationships through head coordination}
+\end{examplebox}
+
+\mechfooter{\statuswell}{attention-mlp-composition, cross-layer-circuits}
+
+%-----------------------------------------------------------------------------
+\subsubsection{Attention-MLP Composition Logic Mechanism}
+\label{mech:attention-mlp-composition}
+
+\noindent\depthinfo{All layers} | \primaryimpl{Architectural pattern} | \litnames{interleaved processing, residual composition, layer coordination}
+
+\begin{functiondesc}
+Coordinate attention and MLP mechanisms through residual stream composition. Attention routes information, MLP transforms it, next attention routes transformed features. Enable information flow through alternating routing and transformation stages. Support incremental refinement: each layer adds to residual stream. Allow mechanisms to build on previous computations without overwriting. Implement universal approximation through composed operations. Core architectural pattern enabling complex computation from simple primitives.
+\end{functiondesc}
+
+\begin{implementationbox}
+\archimpl{Fundamental transformer architecture: $h_{l+1} = h_l + \text{Attn}(h_l) + \text{MLP}(\text{Attn}(h_l) + h_l)$ where residual connections enable composition. Each layer adds incremental contribution. Direct path from input to any layer through skip connections.}\\
+\circuitimpl{Universal pattern across all layers. Attention provides routing, MLP provides transformation, residual stream accumulates contributions. Enables arbitrarily complex computation through depth. Layers learn incremental refinements rather than complete transformations.}
+\end{implementationbox}
+
+\begin{ablationbox}
+\textbf{Expected ablation:} Catastrophic failure. Without residual composition, model cannot function. Loss of information flow between layers. Each layer would overwrite previous computation rather than refining it. Fundamental to transformer operation. Training impossible for deep networks without gradient highways.
+\end{ablationbox}
+
+\begin{examplebox}
+\exinput{Complex query requiring multiple processing stages}\\
+\exbehavior{Layer 1 routes information, Layer 2 transforms via MLP, Layer 3 routes transformed features, iteratively through depth}\\
+\exeffect{Progressive refinement through composed attention and MLP operations}
+\end{examplebox}
+
+\mechfooter{\statuswell}{multi-head-coordination, nonlinear-composition}
+
+%-----------------------------------------------------------------------------
+\subsubsection{Representational Superposition Mechanism}
+\label{mech:representational-superposition}
+
+\noindent\depthinfo{All layers} | \primaryimpl{Representational strategy} | \litnames{feature packing, compressed representation, polysemanticity}
+
+\begin{functiondesc}
+Represent more features than available dimensions through sparse superposed encoding. Pack multiple sparse features into shared neural dimensions. Enable efficient representation: model represents 100K+ features in 4K--8K dimensional space. Individual neurons respond to multiple concepts (polysemanticity). Features stored as sparse linear combinations in activation space. Trade representational efficiency for interference between features managed through sparsity. Enable rich representation within dimensional constraints. Extractable through sparse autoencoders into monosemantic features.
+\end{functiondesc}
+
+\begin{implementationbox}
+\mlpimpl{Neurons encode multiple features through superposition. Activation space contains far more features than dimensions. Feature interference managed through sparsity: features rarely co-occur, enabling interference-limited storage.}\\
+\saeimpl{Sparse autoencoders (10--100$\times$ expansion) extract individual features from superposed representations. Learned overcomplete basis reveals hidden structure. Enables fine-grained interpretability of polysemantic neurons.}\\
+\circuitimpl{Fundamental representational strategy enabling rich feature sets within fixed architecture. Explains polysemanticity observations across transformer models.}
+\end{implementationbox}
+
+\begin{ablationbox}
+\textbf{Expected ablation:} Cannot directly ablate (representational property not mechanism). SAE extraction reveals structure but removing superposition would require architectural change. Fundamental to how transformers achieve capability within dimensional constraints. Models without superposition would require impractically large dimensions.
+\end{ablationbox}
+
+\begin{examplebox}
+\exinput{[Single neuron responding to multiple unrelated concepts: ``Paris'', ``capital'', ``tower'']}\\
+\exbehavior{Neuron participates in representing multiple sparse features through superposition, firing for different concepts in different contexts}\\
+\exeffect{Efficient packing of features; polysemantic neuron behavior enabling rich representation}
+\end{examplebox}
+
+\mechfooter{\statuswell}{nonlinear-composition, abstract-concepts}
+
+%-----------------------------------------------------------------------------
+\subsubsection{Infrastructure Primitives Mechanism}
+\label{mech:infrastructure-primitives}
+
+\noindent\depthinfo{N/A (architectural)} | \primaryimpl{See Appendix A} | \litnames{architectural primitives, foundational mechanisms}
+
+\begin{functiondesc}
+Brief reference entry linking to Appendix A containing architectural primitives without direct computational semantics. These foundational elements (residual connections, layer normalization, attention masking, embeddings, attention computation, gradient flow, tokenization) are essential for understanding transformer operation but are better documented separately as infrastructure rather than computational mechanisms in the main taxonomy.
+\end{functiondesc}
+
+\begin{implementationbox}
+See Appendix A for detailed descriptions of 8 infrastructure primitives:
+\begin{enumerate}[itemsep=0pt]
+\item Residual Connections
+\item Layer Normalization
+\item Attention Masking
+\item Embedding and Unembedding
+\item Attention Computation
+\item Gradient Flow
+\item Tokenization
+\item Feature Normalization
+\end{enumerate}
+\end{implementationbox}
+
+\begin{ablationbox}
+\textbf{Expected ablation:} See individual infrastructure primitive descriptions in Appendix A. Generally catastrophic failures as these are foundational architectural requirements.
+\end{ablationbox}
+
+\begin{examplebox}
+Refer to Appendix A for examples of each infrastructure primitive.
+\end{examplebox}
+
+\mechfooter{\statuswell}{attention-mlp-composition, multi-head-coordination}

@@ -1,0 +1,144 @@
+%=============================================================================
+\subsection{Pattern \& Sequential Stack}
+\label{sec:pattern-stack}
+
+\textbf{Stack overview:} Detect and complete patterns from context. Enable in-context learning through pattern matching and repetition detection. Support sequence continuation and algorithmic behavior. Process positional information for order-aware computation.
+
+%-----------------------------------------------------------------------------
+\subsubsection{Pattern Completion Mechanism}
+\label{mech:pattern-completion}
+
+\noindent\depthinfo{0.05--0.58 (E-M)} | \primaryimpl{Attention heads + MLP neurons} | \litnames{induction mechanism, pattern completion, in-context learning}
+
+\begin{functiondesc}
+Detect and complete patterns of form [A][B]...[A] $\rightarrow$ predict [B]. Enable in-context learning through multi-stage circuit combining position-based copying, repetition detection, pattern matching, and n-gram retrieval. Foundation for few-shot learning and analogical reasoning. Support pattern-based prediction without parameter updates. Implement through coordinated multi-component circuit spanning 3--8 layers.
+\end{functiondesc}
+
+\begin{implementationbox}
+\attnimpl{Previous-token heads (E, 0.05--0.20) create shifted representations through uniform offset attention. Duplicate-token heads (M, 0.30--0.58) detect repeated elements via exact token matching. Induction heads (M, 0.25--0.55) match patterns by attending to previous occurrences of current token content.}\\
+\mlpimpl{N-gram neurons (E-M, 0.15--0.55) store frequent bigram and trigram patterns as key-value associations. Provide statistical support for pattern completion.}\\
+\circuitimpl{Previous-token $\rightarrow$ Induction $\rightarrow$ MLP retrieval working in composition across 3--8 layers. Unified pattern completion circuit integrating multiple specialized components.}
+\end{implementationbox}
+
+\begin{ablationbox}
+\textbf{Expected ablation:} Severe loss of in-context learning capability. Major degradation on few-shot tasks requiring pattern-based generalization. Loss of pattern completion and analogical continuation. Reduced ability to learn from examples provided in prompt without fine-tuning.
+\end{ablationbox}
+
+\begin{examplebox}
+\exinput{``When Mary and John went to the store, Mary gave milk to John. When Susan and Bob went to the store, Susan gave milk to...''}\\
+\exbehavior{Detect pattern [A] gave milk to [B], previous-token creates shifted representations, induction heads match pattern, duplicate-token tracks repetition}\\
+\exeffect{Output ``Bob'' by analogical pattern completion across contexts}
+\end{examplebox}
+
+\mechfooter{\statuswell}{algorithmic-continuation, entity-grounding, output-routing}
+
+%-----------------------------------------------------------------------------
+\subsubsection{Algorithmic Continuation Mechanism}
+\label{mech:algorithmic-continuation}
+
+\noindent\depthinfo{0.35--0.65 (M)} | \primaryimpl{Attention heads + MLP neurons} | \litnames{sequence continuation, rule following, mathematical pattern completion}
+
+\begin{functiondesc}
+Continue algorithmic sequences by detecting underlying rules: counting, arithmetic progressions, alphabetic sequences, mathematical patterns. Extract systematic rules from examples and apply consistently. Support rule-based generation beyond memorization. Enable mathematical and logical pattern completion. Integration point between pattern matching and reasoning mechanisms. Implement structured sequence understanding.
+\end{functiondesc}
+
+\begin{implementationbox}
+\attnimpl{Algorithmic heads (M, 0.35--0.60) detect regular patterns and systematic relationships in sequences through content-based attention to sequence structure.}\\
+\mlpimpl{Rule storage neurons (M, 0.40--0.65) encode mathematical operations and sequence transformation rules. Store procedural knowledge for systematic continuation.}\\
+\circuitimpl{Integrates with reasoning mechanisms (M-L) for complex rule application. Bridges pattern detection and symbolic reasoning.}
+\end{implementationbox}
+
+\begin{ablationbox}
+\textbf{Expected ablation:} Significant loss of algorithmic continuation ability. Major degradation on sequence completion tasks requiring rule extraction. Reduced performance on mathematical and logical patterns. Loss of systematic rule application. Increased reliance on memorized sequences rather than rule understanding.
+\end{ablationbox}
+
+\begin{examplebox}
+\exinput{``2, 4, 8, 16, 32, ...''}\\
+\exbehavior{Detect doubling pattern through ratio analysis, activate multiplication rule, apply systematically}\\
+\exeffect{Output ``64'' as next power of 2 through rule-based continuation}
+\end{examplebox}
+
+\mechfooter{\statusobs}{pattern-completion, multi-step-reasoning}
+
+%-----------------------------------------------------------------------------
+\subsubsection{Local Context Modeling Mechanism}
+\label{mech:local-context-modeling}
+
+\noindent\depthinfo{0.08--0.30 (E)} | \primaryimpl{Attention heads + MLP neurons} | \litnames{local pattern detection, instruction markers, syntactic processing}
+
+\begin{functiondesc}
+Process immediate local context (1--5 tokens) for instruction markers, syntactic structure, and local patterns. Distinct from Pattern Completion which operates at broader scale (10+ tokens). Enable detection of formatting directives, instruction keywords, and immediate syntactic relationships. Provide foundation for instruction following and local structure understanding. Support early-layer linguistic processing.
+\end{functiondesc}
+
+\begin{implementationbox}
+\attnimpl{Instruction-detection heads (E, 0.08--0.25) attend to directive language and formatting markers in immediate context. Local pattern heads (E, 0.10--0.30) process adjacent token relationships for syntactic structure.}\\
+\mlpimpl{N-gram context neurons (E, 0.15--0.30) encode local sequential patterns and common instruction templates.}\\
+\circuitimpl{Early detection stage feeding instruction following and format enforcement mechanisms in later layers.}
+\end{implementationbox}
+
+\begin{ablationbox}
+\textbf{Expected ablation:} Moderate loss of local pattern detection and immediate context processing. Reduced instruction recognition accuracy. Notable degradation on format-sensitive tasks. Instruction following mechanisms receive weaker early signals. Minor syntactic processing impairment.
+\end{ablationbox}
+
+\begin{examplebox}
+\exinput{``List exactly 3 items in bullet format''}\\
+\exbehavior{Detect ``List exactly 3'' as instruction constraint, ``bullet format'' as formatting directive in immediate 1--5 token window}\\
+\exeffect{Write instruction signals to residual stream for downstream enforcement}
+\end{examplebox}
+
+\mechfooter{\statusprop}{pattern-completion, format-enforcement}
+
+%-----------------------------------------------------------------------------
+\subsubsection{Repetition \& Cycle Recognition Mechanism}
+\label{mech:repetition-cycle-recognition}
+
+\noindent\depthinfo{0.30--0.60 (M)} | \primaryimpl{Attention heads} | \litnames{repetition detection, cycle detection, recurring pattern recognition}
+
+\begin{functiondesc}
+Detect repetition at multiple scales: token-level duplicates, phrasal repetition, cyclical patterns, recurring structures. Serve multiple downstream mechanisms beyond pattern completion alone. Provide repetition signals for entity tracking, output routing, and IOI circuits. Enable detection of recurring themes and structural cycles. Support disambiguation through repetition awareness.
+\end{functiondesc}
+
+\begin{implementationbox}
+\attnimpl{Duplicate-token heads (M, 0.30--0.58) perform exact token identity matching across arbitrary distances. Cycle-detection patterns (M, 0.35--0.60) identify recurring sequences and structural repetition.}\\
+\circuitimpl{Feeds into multiple mechanisms: pattern completion (induction), entity tracking (coreference), output routing (IOI circuit), disambiguation circuits. Multi-purpose repetition detection serving diverse downstream computation.}
+\end{implementationbox}
+
+\begin{ablationbox}
+\textbf{Expected ablation:} Moderate degradation in pattern matching and entity tracking. Notable impact on IOI circuit performance. Reduced disambiguation accuracy when repetition provides disambiguating signal. Loss of cycle and recurrence detection capability affecting multiple downstream mechanisms.
+\end{ablationbox}
+
+\begin{examplebox}
+\exinput{``The cat climbed the tree. The cat...''}\\
+\exbehavior{Second ``cat'' detects first ``cat'' as duplicate, signal repetition for entity tracking and coreference resolution}\\
+\exeffect{Enable entity linking and support pattern completion circuits through repetition signal}
+\end{examplebox}
+
+\mechfooter{\statusprop}{pattern-completion, entity-grounding, output-routing}
+
+%-----------------------------------------------------------------------------
+\subsubsection{Position-Based Processing Mechanism}
+\label{mech:position-based-processing}
+
+\noindent\depthinfo{0.05--0.65 (E-M)} | \primaryimpl{Architecture + Attention heads} | \litnames{positional encoding, position representation, order information}
+
+\begin{functiondesc}
+Encode and process positional information (absolute and relative) to enable order-aware computation. Provide transformers with sequence order information absent from raw token embeddings. Distinguish token order and maintain structural position awareness. Implement various positional schemes: absolute positions, relative positions, learned encodings. Enable position-dependent patterns and sequential reasoning. Foundation for all order-aware computation.
+\end{functiondesc}
+
+\begin{implementationbox}
+\archimpl{Positional encodings added to input embeddings. Various implementations: sinusoidal (absolute), learned (absolute), rotary (relative). Architecture-level provision of position information.}\\
+\attnimpl{Positional heads (E, 0.05--0.20) process absolute position information for early-layer position-aware patterns. Relative-position heads (M, 0.35--0.65) compute position relationships and distance-dependent attention.}\\
+\circuitimpl{Spans input encoding through middle layers. Absolute position (E) provides foundation, relative position (M) enables structural understanding.}
+\end{implementationbox}
+
+\begin{ablationbox}
+\textbf{Expected ablation:} Severe loss of order-awareness. Model treats sequences as bags of words with position-invariant processing. Major degradation on tasks requiring sequential understanding. Loss of position-dependent patterns. Inability to distinguish ``Alice followed Bob'' from ``Bob followed Alice''. Critical failure of order-sensitive computation.
+\end{ablationbox}
+
+\begin{examplebox}
+\exinput{``Alice followed Bob'' vs. ``Bob followed Alice''}\\
+\exbehavior{Use positional encodings to distinguish subject position from object position based on token order}\\
+\exeffect{Understand opposite meanings despite identical token sets through position information}
+\end{examplebox}
+
+\mechfooter{\statuswell}{pattern-completion, local-context-modeling}

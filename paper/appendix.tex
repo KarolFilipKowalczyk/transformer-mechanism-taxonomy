@@ -1,0 +1,364 @@
+%=============================================================================
+% APPENDIX A: INFRASTRUCTURE PRIMITIVES
+%=============================================================================
+
+\section{Infrastructure Primitives}
+\label{app:infrastructure}
+
+The Composition \& Integration stack includes a reference mechanism called ``Infrastructure Primitives.'' These are architectural elements that enable all computational mechanisms but lack direct computational semantics themselves. They are documented here separately to maintain focus on computational mechanisms in the main taxonomy.
+
+These primitives are foundational building blocks essential for transformer operation but better understood as architectural requirements than mechanisms. All transformers require residual connections to enable gradient flow; all autoregressive models require attention masking to prevent future information leakage; all models require embeddings to process discrete tokens.
+
+\subsection{Why Infrastructure Primitives Are Separate}
+
+Infrastructure primitives differ from computational mechanisms in four key ways:
+
+\textbf{No computational semantics:} These primitives enable computation but do not themselves perform semantic transformations. Residual connections route information; they do not decide what information to route. Layer normalization stabilizes activations; it does not determine which features to extract.
+
+\textbf{Architectural rather than learned:} While these primitives contain learned parameters (embedding matrices, LayerNorm scales), their computational role is architectural. Removing residual connections changes the architecture fundamentally, not just the learned behavior.
+
+\textbf{Universal requirements:} Every transformer implements these primitives. They are necessary conditions for transformer operation, not optional mechanisms that models may or may not implement.
+
+\textbf{Enable rather than implement:} These primitives enable mechanisms rather than implementing them. Attention computation enables all attention-based mechanisms; residual connections enable all cross-layer circuits; embeddings enable all token processing.
+
+%-----------------------------------------------------------------------------
+\subsection{A.1 Residual Connections}
+\label{app:residual-connections}
+
+\noindent\textbf{Depth:} All layers | \textbf{Implementation:} Architecture | \textbf{Status:} Well-documented
+
+\subsubsection*{Function}
+
+Enable information flow through depth via additive skip connections. Each layer adds its contribution to the residual stream rather than overwriting previous content: $h_{l+1} = h_l + f(h_l)$ where $f$ represents layer computation (attention or MLP). Provide gradient highways enabling training of very deep networks by allowing gradients to flow directly from output to any layer.
+
+\subsubsection*{Formulas}
+
+After attention sublayer: $h' = h + \text{Attn}(h)$
+
+After MLP sublayer: $h_{l+1} = h' + \text{MLP}(h')$
+
+Combined: $h_{l+1} = h_l + \text{Attn}(h_l) + \text{MLP}(h_l + \text{Attn}(h_l))$
+
+\subsubsection*{Properties}
+
+\textbf{Direct information path:} Input information can reach any layer without passing through all intermediate transformations. Layer $l$ has direct access to input plus contributions from layers $1, 2, \ldots, l-1$.
+
+\textbf{Gradient highways:} During backpropagation, gradients flow backward through skip connections, avoiding repeated multiplication through many weight matrices. This prevents vanishing gradients in deep networks.
+
+\textbf{Incremental refinement:} Each layer refines representations incrementally rather than replacing them. Layers learn $\Delta h$ (changes to make) rather than $h$ (complete new representation).
+
+\textbf{Foundation for circuits:} Cross-layer circuits rely on residual connections to compose mechanisms across depth. Information written by early layers remains accessible to late layers.
+
+\subsubsection*{Ablation Effects}
+
+Catastrophic failure. Without residual connections: (1) training becomes impossible for networks deeper than 3--5 layers due to vanishing gradients, (2) information from early layers cannot reach late layers, (3) cross-layer circuits cannot function, (4) model degenerates to processing only through sequential transformations.
+
+\subsubsection*{Related Work}
+
+Residual connections introduced by He et al. (2016) for computer vision, adapted to transformers by Vaswani et al. (2017). Essential for all modern transformer architectures.
+
+%-----------------------------------------------------------------------------
+\subsection{A.2 Layer Normalization}
+\label{app:layer-normalization}
+
+\noindent\textbf{Depth:} All layers | \textbf{Implementation:} Architecture | \textbf{Status:} Well-documented
+
+\subsubsection*{Function}
+
+Normalize activation distributions to stabilize training and inference. Applied before each attention and MLP sublayer to rescale and recenter activations to zero mean and unit variance across the feature dimension. Prevents activation explosion or vanishing through network depth.
+
+\subsubsection*{Formula}
+
+$\text{LayerNorm}(x) = \gamma \odot \frac{x - \mu}{\sqrt{\sigma^2 + \epsilon}} + \beta$
+
+where:
+\begin{itemize}[itemsep=0pt]
+\item $\mu = \frac{1}{d}\sum_{i=1}^{d} x_i$ (mean across feature dimension)
+\item $\sigma^2 = \frac{1}{d}\sum_{i=1}^{d} (x_i - \mu)^2$ (variance across feature dimension)
+\item $\gamma, \beta \in \mathbb{R}^d$ (learned scale and shift parameters)
+\item $\epsilon$ (small constant for numerical stability, typically $10^{-5}$)
+\end{itemize}
+
+\subsubsection*{Properties}
+
+\textbf{Pre-normalization:} Applied before sublayers: $\text{Attn}(\text{LN}(h))$ and $\text{MLP}(\text{LN}(h))$. This ``Pre-LN'' configuration (compared to original ``Post-LN'') improves training stability.
+
+\textbf{Feature-dimension normalization:} Normalizes independently for each token across its feature dimensions. Does not normalize across the sequence dimension.
+
+\textbf{Learned parameters:} $\gamma$ (scale) and $\beta$ (shift) are learned per feature dimension, allowing model to adjust normalization when beneficial.
+
+\textbf{Activation stabilization:} Prevents individual features from dominating. Ensures all features contribute at similar scales, improving gradient flow and training stability.
+
+\subsubsection*{Ablation Effects}
+
+Severe training instability. Without LayerNorm: (1) activations explode or vanish through depth, (2) training requires careful learning rate tuning and often fails, (3) gradient magnitudes become highly uneven across layers, (4) model performance significantly degraded even when training succeeds.
+
+\subsubsection*{Related Work}
+
+Layer Normalization introduced by Ba et al. (2016). Transformer architecture uses Pre-LN configuration (Xiong et al. 2020) for improved stability. Alternative normalization schemes (RMSNorm) used in some recent models.
+
+%-----------------------------------------------------------------------------
+\subsection{A.3 Attention Masking}
+\label{app:attention-masking}
+
+\noindent\textbf{Depth:} All layers | \textbf{Implementation:} Architecture | \textbf{Status:} Well-documented
+
+\subsubsection*{Function}
+
+Prevent attention to future tokens, enforcing causal/autoregressive generation. Implement masking such that position $i$ can only attend to positions $j \leq i$. Enable left-to-right generation without information leakage about future tokens.
+
+\subsubsection*{Formula}
+
+$\text{Attention}(Q, K, V) = \text{softmax}\left(\frac{QK^T}{\sqrt{d_k}} + M\right)V$
+
+where mask $M$ is defined:
+$$M_{ij} = \begin{cases} 
+0 & \text{if } j \leq i \\
+-\infty & \text{if } j > i
+\end{cases}$$
+
+In practice, $-\infty$ is approximated by a large negative number (e.g., $-10^{10}$) to prevent numerical issues.
+
+\subsubsection*{Properties}
+
+\textbf{Triangular structure:} Mask forms lower triangular matrix, allowing efficient implementation. Position $i$ attends to positions $0, 1, \ldots, i$ but not $i+1, i+2, \ldots, n$.
+
+\textbf{Universal for autoregressive models:} All decoder-only transformers (GPT, LLaMA, Claude) use causal masking. Required for next-token prediction training.
+
+\textbf{Not used in bidirectional models:} Encoder-only models (BERT) omit masking to enable bidirectional attention. Encoder-decoder models use masking in decoder only.
+
+\textbf{Enables valid generation:} Model trained with causal mask can generate sequentially at inference, with each token conditioned only on previous tokens, matching training conditions.
+
+\subsubsection*{Ablation Effects}
+
+Complete failure of autoregressive generation. Without causal masking: (1) model sees future tokens during training, (2) learns to copy from future context rather than predict, (3) cannot generate sequentially at inference, (4) produces incoherent output when deployed autoregressively.
+
+\subsubsection*{Related Work}
+
+Causal masking fundamental to transformer language models (Vaswani et al. 2017, Radford et al. 2018). All modern autoregressive transformers implement this primitive.
+
+%-----------------------------------------------------------------------------
+\subsection{A.4 Embedding and Unembedding}
+\label{app:embedding-unembedding}
+
+\noindent\textbf{Depth:} Input and output | \textbf{Implementation:} Architecture | \textbf{Status:} Well-documented
+
+\subsubsection*{Function}
+
+Convert between discrete tokens and continuous representations. \textbf{Embedding} maps token IDs to dense vectors at input. \textbf{Unembedding} projects final hidden states to vocabulary logits at output, enabling next-token prediction via softmax.
+
+\subsubsection*{Formulas}
+
+\textbf{Embedding:} $h_0 = E[x]$ where:
+\begin{itemize}[itemsep=0pt]
+\item $x \in \{1, 2, \ldots, V\}$ is discrete token ID
+\item $E \in \mathbb{R}^{V \times d}$ is embedding matrix
+\item $h_0 \in \mathbb{R}^d$ is dense token representation
+\end{itemize}
+
+\textbf{Unembedding:} $\text{logits} = h_L W_U + b$ where:
+\begin{itemize}[itemsep=0pt]
+\item $h_L \in \mathbb{R}^d$ is final layer hidden state
+\item $W_U \in \mathbb{R}^{d \times V}$ is unembedding matrix
+\item $\text{logits} \in \mathbb{R}^V$ are vocabulary scores
+\end{itemize}
+
+\textbf{Weight tying:} Often $W_U = E^T$ (transpose of embedding matrix), reducing parameters and improving training.
+
+\subsubsection*{Properties}
+
+\textbf{Vocabulary size:} Typically $V = 32\text{K}$ to $100\text{K}$ tokens depending on tokenization scheme and model. Larger vocabularies increase memory but reduce sequence length.
+
+\textbf{Learned representations:} Embedding and unembedding matrices learned from data. Similar tokens receive similar embeddings through training.
+
+\textbf{Input/output interface:} All transformer computation operates on continuous embeddings. Embedding and unembedding provide the bridge between discrete tokens and continuous processing.
+
+\textbf{Positional encoding addition:} Positional encodings added to token embeddings at input: $h_0 = E[x] + \text{PosEnc}(i)$ where $i$ is position index.
+
+\subsubsection*{Ablation Effects}
+
+Complete model failure. Without embedding: (1) cannot process discrete token inputs, (2) no learned semantic representations, (3) no vocabulary interface for language. Without unembedding: cannot produce token predictions, no next-token generation.
+
+\subsubsection*{Related Work}
+
+Word embeddings (Mikolov et al. 2013, Pennington et al. 2014) preceded transformers. Transformer embedding/unembedding learned end-to-end (Vaswani et al. 2017). Weight tying common practice (Press \& Wolf, 2017).
+
+%-----------------------------------------------------------------------------
+\subsection{A.5 Attention Computation}
+\label{app:attention-computation}
+
+\noindent\textbf{Depth:} All layers | \textbf{Implementation:} Architecture | \textbf{Status:} Well-documented
+
+\subsubsection*{Function}
+
+Implement core attention operation: weighted aggregation of values based on query-key similarity. Compute content-based routing through learned projections. Enable selective information flow based on learned attention patterns.
+
+\subsubsection*{Formula}
+
+$\text{Attention}(Q, K, V) = \text{softmax}\left(\frac{QK^T}{\sqrt{d_k}}\right)V$
+
+where learned projections create queries, keys, values:
+\begin{itemize}[itemsep=0pt]
+\item $Q = h W_Q$ where $W_Q \in \mathbb{R}^{d \times d_k}$ (query projection)
+\item $K = h W_K$ where $W_K \in \mathbb{R}^{d \times d_k}$ (key projection)
+\item $V = h W_V$ where $W_V \in \mathbb{R}^{d \times d_v}$ (value projection)
+\item $\sqrt{d_k}$ scaling factor prevents softmax saturation for large $d_k$
+\end{itemize}
+
+Multi-head attention: $\text{MultiHead}(h) = \text{Concat}(\text{head}_1, \ldots, \text{head}_H)W_O$
+
+\subsubsection*{Properties}
+
+\textbf{Content-based routing:} Similarity between query and key determines attention weight. Enables learned routing patterns based on token content.
+
+\textbf{Softmax normalization:} Attention weights sum to 1 for each query position, ensuring weighted average interpretation.
+
+\textbf{Scaled dot-product:} Scaling by $\sqrt{d_k}$ maintains gradient magnitudes, preventing extremely peaked attention distributions.
+
+\textbf{Parallelizable:} Matrix operations enable efficient parallel computation across all positions and all heads simultaneously.
+
+\textbf{Repeated throughout network:} Every attention head in every layer uses this computation, typically 8--64 heads per layer $\times$ 12--96 layers = 96--6144 attention operations per forward pass.
+
+\subsubsection*{Ablation Effects}
+
+Cannot ablate without fundamentally changing architecture. Attention computation is the defining operation of transformer models. All attention-based mechanisms (routing, selection, copying) depend on this primitive. Removing it would require completely different architecture.
+
+\subsubsection*{Related Work}
+
+Scaled dot-product attention introduced by Vaswani et al. (2017) as core transformer operation. Multi-head variant enables parallel processing of diverse attention patterns. Universal in all transformer architectures.
+
+%-----------------------------------------------------------------------------
+\subsection{A.6 Gradient Flow}
+\label{app:gradient-flow}
+
+\noindent\textbf{Depth:} Training infrastructure | \textbf{Implementation:} Architecture + Training | \textbf{Status:} Well-documented
+
+\subsubsection*{Function}
+
+Enable error gradient propagation from output to input during training. Implement backpropagation through all layers and operations. Maintain gradient magnitude through depth to enable learning in early and late layers equally.
+
+\subsubsection*{Components}
+
+\textbf{Backpropagation algorithm:} Compute gradients via chain rule: $\frac{\partial L}{\partial \theta} = \frac{\partial L}{\partial h_L} \frac{\partial h_L}{\partial h_{L-1}} \cdots \frac{\partial h_1}{\partial \theta}$
+
+\textbf{Residual gradient highways:} Skip connections provide direct gradient paths: $\frac{\partial h_{l+1}}{\partial h_l} = I + \frac{\partial f_l}{\partial h_l}$ where $I$ (identity) ensures gradient flow even if $\frac{\partial f_l}{\partial h_l}$ small.
+
+\textbf{LayerNorm gradient stabilization:} Prevents gradient explosion/vanishing by normalizing activation scales, which indirectly stabilizes gradient magnitudes.
+
+\textbf{Gradient clipping:} Clip gradients exceeding threshold to prevent training instability: $\text{if } \|\nabla\| > \text{threshold}:$ $\nabla \leftarrow \nabla \cdot \frac{\text{threshold}}{\|\nabla\|}$
+
+\textbf{Optimization algorithm:} Typically AdamW: $\theta_{t+1} = \theta_t - \eta \frac{m_t}{\sqrt{v_t} + \epsilon}$ with momentum and adaptive learning rates.
+
+\subsubsection*{Properties}
+
+\textbf{Training-time only:} Gradient flow mechanisms active during training but not inference. Model uses forward pass only for generation.
+
+\textbf{Enables deep network learning:} Without proper gradient flow, only shallow networks (3--5 layers) trainable. Modern transformers (96+ layers) require careful gradient management.
+
+\textbf{Shapes all mechanisms:} Every learned mechanism (attention patterns, MLP features, circuits) acquired through gradient-based optimization. Gradient flow quality determines what model can learn.
+
+\textbf{Architecture-dependent:} Residual connections, LayerNorm, attention computation design all chosen partially for favorable gradient properties.
+
+\subsubsection*{Ablation Effects}
+
+Cannot train model without gradient flow. Parameters remain random, model produces nonsense. With poor gradient flow (no residuals, no LayerNorm): training fails after few layers, early layer parameters don't update, late layer parameters explode or vanish, model learns poorly if at all.
+
+\subsubsection*{Related Work}
+
+Backpropagation fundamental to deep learning (Rumelhart et al. 1986). Gradient flow challenges in deep networks addressed by residual connections (He et al. 2016), normalization (Ba et al. 2016, Ioffe \& Szegedy 2015), and optimization algorithms (Kingma \& Ba 2015).
+
+%-----------------------------------------------------------------------------
+\subsection{A.7 Tokenization}
+\label{app:tokenization}
+
+\noindent\textbf{Depth:} Preprocessing | \textbf{Implementation:} External to model | \textbf{Status:} Well-documented
+
+\subsubsection*{Function}
+
+Convert text into discrete token sequences suitable for neural model processing. Implement subword tokenization to balance vocabulary size (memory) with token granularity (sequence length). Handle rare words through subword decomposition.
+
+\subsubsection*{Algorithm}
+
+\textbf{Byte Pair Encoding (BPE):} Most common approach
+\begin{enumerate}[itemsep=0pt]
+\item Start with character-level vocabulary
+\item Iteratively merge most frequent adjacent pairs
+\item Continue until target vocabulary size reached (typically 32K--100K)
+\item Vocabulary learned from training corpus
+\end{enumerate}
+
+\textbf{Processing:} Text $\rightarrow$ BPE tokenization $\rightarrow$ token IDs $\rightarrow$ model processing $\rightarrow$ token IDs $\rightarrow$ BPE detokenization $\rightarrow$ text
+
+\textbf{Alternative schemes:} WordPiece (BERT), SentencePiece (language-agnostic), character-level (rare).
+
+\subsubsection*{Properties}
+
+\textbf{External to neural model:} Tokenization occurs before and after model processing. Model sees only token IDs, not characters or bytes.
+
+\textbf{Affects model capabilities:} Vocabulary determines what model can represent efficiently. Rare tokens require multiple subwords. Different languages have different tokenization efficiency.
+
+\textbf{Subword tradeoffs:} Larger vocabulary (word-level): fewer tokens per text, more memory. Smaller vocabulary (character-level): more tokens per text, more computation. Subword (BPE): balanced compromise.
+
+\textbf{Learned from data:} Tokenization vocabulary reflects training corpus. Common words are single tokens; rare words split into subwords. Different training corpora produce different vocabularies.
+
+\subsubsection*{Ablation Effects}
+
+Cannot process text without tokenization. Model requires discrete token inputs. Poor tokenization: inefficient representation (too many tokens per text), poor handling of rare words, language bias (some languages tokenized much less efficiently), increased sequence length reducing effective context.
+
+\subsubsection*{Related Work}
+
+BPE introduced by Sennrich et al. (2016) for neural machine translation. SentencePiece (Kudo \& Richardson 2018) provides language-agnostic implementation. Tokenization significantly impacts model performance (Mielke et al. 2021).
+
+%-----------------------------------------------------------------------------
+\subsection{A.8 Feature Normalization}
+\label{app:feature-normalization}
+
+\textbf{Note:} Feature Normalization is identical to Layer Normalization (Section A.2). Listed separately in original mechanism taxonomy for Feature Transformation stack context, but architecturally they are the same primitive.
+
+This entry serves as cross-reference for readers encountering ``Feature Normalization'' in Feature Transformation discussions. For complete description, see Section~\ref{app:layer-normalization}.
+
+\textbf{Historical context:} Original taxonomy listed this as separate mechanism in Feature Transformation stack. During consolidation, recognized as duplicate of LayerNorm and moved to infrastructure appendix with cross-reference.
+
+%-----------------------------------------------------------------------------
+\subsection{Usage of Infrastructure Primitives}
+
+Main taxonomy mechanisms reference these primitives as needed:
+
+\textbf{Attention-MLP Composition Logic} (Mechanism 36) extensively references Residual Connections (A.1), explaining how residual stream enables attention-MLP alternation.
+
+\textbf{All attention-based mechanisms} (15+ mechanisms) implicitly use Attention Computation (A.5) as foundational operation. Mechanisms describe learned attention patterns; primitive describes computation implementing those patterns.
+
+\textbf{Cross-Layer Circuits} (Mechanism 34) depends on Residual Connections (A.1) for multi-layer information flow and references Gradient Flow (A.6) for understanding circuit acquisition during training.
+
+\textbf{Position-Based Processing} (Mechanism 5) adds positional encodings to Embeddings (A.4) at input, providing order information for all downstream mechanisms.
+
+\textbf{All mechanisms} implicitly rely on Layer Normalization (A.2) for stable computation and training, though most do not reference it explicitly.
+
+%-----------------------------------------------------------------------------
+\subsection{Status and Empirical Support}
+
+All eight infrastructure primitives are \textbf{well-documented} in transformer literature:
+
+\begin{itemize}[itemsep=2pt]
+\item Residual Connections: He et al. (2016), Vaswani et al. (2017)
+\item Layer Normalization: Ba et al. (2016), Xiong et al. (2020)
+\item Attention Masking: Vaswani et al. (2017), autoregressive language modeling
+\item Embedding/Unembedding: Mikolov et al. (2013), Vaswani et al. (2017)
+\item Attention Computation: Vaswani et al. (2017) - defining transformer operation
+\item Gradient Flow: Rumelhart et al. (1986), He et al. (2016), optimization research
+\item Tokenization: Sennrich et al. (2016), Kudo \& Richardson (2018)
+\item Feature Normalization: See Layer Normalization
+\end{itemize}
+
+These are not novel findings but well-established architectural components. Documentation here provides reference for understanding how computational mechanisms build on these primitives.
+
+%-----------------------------------------------------------------------------
+\subsection{Implementation Notes}
+
+\textbf{All architectural:} These primitives are architectural features rather than learned mechanisms. While they contain learned parameters (embedding matrices, LayerNorm gains/biases), their computational role is determined by architecture design, not discovered through training.
+
+\textbf{Not optional:} Removing any primitive (except Feature Normalization cross-reference) fundamentally changes or breaks the transformer architecture. These are necessary components, not mechanisms models may or may not implement.
+
+\textbf{Enable but do not implement:} Infrastructure primitives enable computational mechanisms but do not themselves implement semantic transformations. Attention Computation enables name-mover heads; it is not itself a name-mover. Residual Connections enable IOI circuit; they do not implement entity disambiguation.
+
+This distinction motivates separate documentation: infrastructure primitives are prerequisite knowledge for understanding computational mechanisms, but understanding computational mechanisms is the taxonomy's primary goal.

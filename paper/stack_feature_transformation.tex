@@ -5,164 +5,83 @@
 \textbf{Stack overview:} Transform, combine, and refine representational features. Perform nonlinear feature composition, extract abstract concepts, and implement representational changes. Enable complex feature interactions and hierarchical abstraction.
 
 %-----------------------------------------------------------------------------
-\subsubsection{Nonlinear Feature Composition}
+\subsubsection{Nonlinear Composition Mechanism}
 \label{mech:nonlinear-composition}
 
-\noindent\depthinfo{0.20--0.80} | \primaryimpl{MLP neurons} | \litnames{feature mixing, nonlinear transformation, hidden layer processing}
+\noindent\depthinfo{0.20--0.80 (E-L)} | \primaryimpl{MLP neurons} | \litnames{feature mixing, nonlinear transformation, hidden layer processing}
 
 \begin{functiondesc}
-Perform nonlinear combinations and transformations of input features. Implement the core MLP computation: expand dimensionality ($d \to 4d$), apply nonlinearity (GELU/ReLU), contract ($4d \to d$). Enable complex feature interactions impossible through linear attention alone. Create new feature combinations not present in input. Support hierarchical feature refinement: surface features (early) to abstract concepts (late). Universal approximation capability within residual stream constraints.
+Perform nonlinear combinations and transformations of input features. Implement the core MLP computation: expand dimensionality ($d \to 4d$), apply nonlinearity (GELU/ReLU), contract ($4d \to d$). Enable complex feature interactions impossible through linear attention alone. Create new feature combinations not present in input. Support hierarchical feature refinement: surface features (early layers) to abstract concepts (late layers). Universal approximation capability within residual stream constraints. Foundation for all MLP-based computation.
 \end{functiondesc}
 
 \begin{implementationbox}
-\mlpimpl{MLP layers (all depths, 0.20--0.80) implement universal computation. First sublayer: expand and detect feature combinations. Nonlinearity: enable complex interactions. Second sublayer: project back to residual stream with new features.}\\
-\circuitimpl{Interleaved with attention: attention routes $\rightarrow$ MLP transforms $\rightarrow$ attention routes transformed features. Hierarchical refinement across depth.}
+\mlpimpl{MLP layers (all depths, 0.20--0.80) implement universal computation through two-layer transformation. First sublayer: expand to higher dimension and detect feature combinations through learned weight patterns. Nonlinearity (GELU/ReLU): enable complex interactions beyond linear combinations. Second sublayer: project back to residual stream dimension with newly composed features.}\\
+\circuitimpl{Interleaved with attention throughout depth: attention routes information $\rightarrow$ MLP transforms features $\rightarrow$ attention routes transformed features. Hierarchical refinement across layers. Fundamental to all feature-based computation.}
 \end{implementationbox}
 
 \begin{ablationbox}
-\textbf{Expected ablation:} Severe degradation in complex reasoning and feature interactions. Loss of nonlinear transformations. Major impact on abstract concept formation. Model becomes more linear and less expressive. Reduced ability to combine multiple features simultaneously.
+\textbf{Expected ablation:} Severe degradation in complex reasoning and feature interactions. Loss of nonlinear transformations reduces model to near-linear operation. Major impact on abstract concept formation and semantic understanding. Model becomes significantly less expressive. Reduced ability to combine multiple features simultaneously. Critical loss of representational power.
 \end{ablationbox}
 
 \begin{examplebox}
 \exinput{Features: [``large'', ``gray'', ``trunk'', ``tusks'']}\\
-\exbehavior{Nonlinearly combine features to form abstract concept}\\
-\exeffect{Create ``elephant'' representation from component features}
+\exbehavior{Expand features, apply nonlinear combinations through MLP transformation, detect co-occurrence patterns}\\
+\exeffect{Create ``elephant'' representation through nonlinear feature composition}
 \end{examplebox}
 
-\mechfooter{\statuswell}{abstract-concept-formation, key-value-memory}
+\mechfooter{\statuswell}{abstract-concept-formation, factual-recall}
 
 %-----------------------------------------------------------------------------
-\subsubsection{Abstract Concept Formation}
+\subsubsection{Abstract Concept Formation Mechanism}
 \label{mech:abstract-concepts}
 
-\noindent\depthinfo{0.50--0.80} | \primaryimpl{MLP neurons} | \litnames{abstraction, concept extraction, semantic generalization}
+\noindent\depthinfo{0.50--0.80 (M-L)} | \primaryimpl{MLP neurons} | \litnames{abstraction, concept extraction, semantic generalization}
 
 \begin{functiondesc}
-Extract and represent abstract concepts from concrete features. Perform semantic generalization: map specific instances to general categories. Build hierarchical abstractions: words $\rightarrow$ phrases $\rightarrow$ concepts $\rightarrow$ themes. Enable reasoning at multiple levels of abstraction. Support metaphor, analogy, and transfer. Transform surface-level tokens into deep semantic representations. Increase abstraction level with depth.
+Extract and represent abstract concepts from concrete features. Perform semantic generalization: map specific instances to general categories. Build hierarchical abstractions through depth: words $\rightarrow$ phrases $\rightarrow$ concepts $\rightarrow$ themes. Enable reasoning at multiple levels of abstraction. Support metaphor, analogy, and transfer learning. Transform surface-level tokens into deep semantic representations. Increase abstraction level with layer depth: early layers process concrete features, late layers encode high-level themes.
 \end{functiondesc}
 
 \begin{implementationbox}
-\mlpimpl{Abstraction neurons (M-L, 0.50--0.80) encode increasingly abstract concepts at greater depths. Early layers: concrete features. Middle layers: category-level abstractions. Late layers: high-level themes and relationships.}\\
-\circuitimpl{Progressive abstraction across layers. Attention at each level operates on abstractions appropriate to that depth.}
+\mlpimpl{Abstraction neurons (M-L, 0.50--0.80) encode increasingly abstract concepts at greater depths. Hierarchical organization: Early layers represent concrete features. Middle layers encode category-level abstractions and semantic classes. Late layers represent high-level themes, relationships, and domain concepts.}\\
+\circuitimpl{Progressive abstraction across layers. Attention at each level operates on abstractions appropriate to that depth. Supports analogical reasoning and transfer through shared abstract representations.}
 \end{implementationbox}
 
 \begin{ablationbox}
-\textbf{Expected ablation:} Significant loss of abstract reasoning capability. Difficulty with generalization and category-level thinking. Notable degradation on tasks requiring conceptual understanding beyond literal meaning. Reduced ability to recognize analogies and metaphors.
+\textbf{Expected ablation:} Significant loss of abstract reasoning capability. Difficulty with generalization and category-level thinking. Notable degradation on tasks requiring conceptual understanding beyond literal meaning. Reduced ability to recognize analogies and metaphors. More concrete, less flexible reasoning patterns. Impaired transfer learning within context.
 \end{ablationbox}
 
 \begin{examplebox}
 \exinput{``The stock market crashed. Housing prices collapsed. Banks failed.''}\\
-\exbehavior{Extract abstract concept of ``financial crisis'' from specific events}\\
-\exeffect{Enable reasoning about crisis in general, not just specific instances}
+\exbehavior{Extract abstract concept of ``financial crisis'' from specific event instances through hierarchical abstraction}\\
+\exeffect{Enable reasoning about crisis in general, not just specific instances mentioned}
 \end{examplebox}
 
 \mechfooter{\statusobs}{nonlinear-composition, semantic-integration}
 
 %-----------------------------------------------------------------------------
-\subsubsection{Positional Encoding Processing}
-\label{mech:positional-encoding}
-
-\noindent\depthinfo{0.05--0.30} | \primaryimpl{Architecture + Attention heads} | \litnames{position representation, sequence encoding, order information}
-
-\begin{functiondesc}
-Encode and process positional information to enable order-aware computation. Provide transformers with sequence order information absent from raw tokens. Implement various schemes: absolute positions, relative positions, learned encodings. Enable position-dependent patterns: beginning vs. end behavior, local vs. distant attention. Support position-aware processing throughout depth. Foundation for sequential reasoning and structural understanding.
-\end{functiondesc}
-
-\begin{implementationbox}
-\archimpl{Positional encodings added to input embeddings (sinusoidal, learned, or rotary). Various architectures: absolute (GPT), relative (T5), rotary (LLaMA).}\\
-\attnimpl{Positional heads (E, 0.05--0.20) process position information. Previous-token heads use positions for offset patterns. Relative-position heads (M, 0.35--0.65) compute position-aware relationships.}
-\end{implementationbox}
-
-\begin{ablationbox}
-\textbf{Expected ablation:} Severe loss of order-awareness. Model treats sequences as bags of words. Major degradation on tasks requiring sequential understanding. Loss of position-dependent patterns. Inability to distinguish ``A before B'' from ``B before A''.
-\end{ablationbox}
-
-\begin{examplebox}
-\exinput{``Alice followed Bob'' vs. ``Bob followed Alice''}\\
-\exbehavior{Use positional encodings to distinguish subject from object based on order}\\
-\exeffect{Understand opposite meanings despite same words}
-\end{examplebox}
-
-\mechfooter{\statuswell}{position-based-copying, relative-position-tracking}
-
-%-----------------------------------------------------------------------------
-\subsubsection{Semantic Integration}
+\subsubsection{Semantic Integration Mechanism}
 \label{mech:semantic-integration}
 
-\noindent\depthinfo{0.40--0.70} | \primaryimpl{MLP neurons + Attention heads} | \litnames{meaning composition, semantic synthesis, contextual integration}
+\noindent\depthinfo{0.40--0.70 (M-L)} | \primaryimpl{MLP neurons + Attention heads} | \litnames{meaning composition, semantic synthesis, contextual integration}
 
 \begin{functiondesc}
-Integrate semantic information from multiple sources to build coherent meaning representations. Combine word meanings with context to resolve ambiguity. Perform compositional semantics: build phrase and sentence meanings from components. Resolve polysemy and homonymy using context. Enable context-dependent interpretation. Support pragmatic inference and implicature understanding.
+Integrate semantic information from multiple sources to build coherent meaning representations. Combine word meanings with context to resolve ambiguity. Perform compositional semantics: build phrase and sentence meanings from word-level components. Resolve polysemy and homonymy using contextual information. Enable context-dependent interpretation of ambiguous terms. Support pragmatic inference and implicature understanding. Distinguish from memory consolidation (knowledge-level) and context aggregation (discourse-level).
 \end{functiondesc}
 
 \begin{implementationbox}
-\mlpimpl{Semantic integration neurons (M-L, 0.45--0.70) combine contextual information to disambiguate and refine meanings. Store semantic composition patterns.}\\
-\attnimpl{Context-gathering heads (M, 0.40--0.60) collect relevant semantic information from context for disambiguation.}\\
-\circuitimpl{Context gathering $\rightarrow$ MLP semantic composition $\rightarrow$ refined representations.}
+\mlpimpl{Semantic integration neurons (M-L, 0.45--0.70) combine contextual information to disambiguate and refine meanings. Store semantic composition patterns and context-dependent interpretation rules.}\\
+\attnimpl{Context-gathering heads (M, 0.40--0.60) collect relevant semantic information from surrounding context for disambiguation and meaning construction.}\\
+\circuitimpl{Context gathering (M) $\rightarrow$ MLP semantic composition (M-L) $\rightarrow$ refined meaning representations. Enables compositional semantics through coordinated attention and transformation.}
 \end{implementationbox}
 
 \begin{ablationbox}
-\textbf{Expected ablation:} Moderate loss of context-dependent meaning resolution. Increased ambiguity in interpretation. Notable degradation on homonym disambiguation and context-sensitive understanding. More literal, less nuanced comprehension.
+\textbf{Expected ablation:} Moderate loss of context-dependent meaning resolution. Increased ambiguity in interpretation of polysemous terms. Notable degradation on homonym disambiguation and context-sensitive understanding. More literal, less nuanced comprehension. Reduced ability to perform compositional semantics. Difficulty with pragmatic inference.
 \end{ablationbox}
 
 \begin{examplebox}
 \exinput{``The bank was steep'' vs. ``The bank was closed''}\\
-\exbehavior{Integrate context (steep/closed) to disambiguate ``bank'' meaning}\\
-\exeffect{River bank vs. financial institution based on context}
+\exbehavior{Integrate context clues (``steep'' vs. ``closed'') to disambiguate ``bank'' meaning through semantic integration}\\
+\exeffect{Correctly interpret as river bank vs. financial institution based on contextual semantics}
 \end{examplebox}
 
-\mechfooter{\statusobs}{abstract-concepts, factual-retrieval}
-
-%-----------------------------------------------------------------------------
-\subsubsection{Feature Normalization}
-\label{mech:feature-normalization}
-
-\noindent\depthinfo{All layers} | \primaryimpl{Architecture (LayerNorm)} | \litnames{activation normalization, scale stabilization, normalization}
-
-\begin{functiondesc}
-Normalize feature distributions to stabilize training and computation. Apply layer normalization before each attention and MLP block. Rescale and recenter activations to prevent explosion or vanishing. Enable deep networks by controlling activation magnitudes. Support gradient flow through many layers. Provide consistent feature scales for downstream processing.
-\end{functiondesc}
-
-\begin{implementationbox}
-\archimpl{LayerNorm applied before attention and MLP in each layer. Normalizes across feature dimension: $\text{LayerNorm}(x) = \gamma \frac{x - \mu}{\sigma} + \beta$.}\\
-\circuitimpl{Preprocessing step for all attention and MLP computations. Essential for training stability but also affects learned representations.}
-\end{implementationbox}
-
-\begin{ablationbox}
-\textbf{Expected ablation:} Severe training instability. Activation explosion or vanishing in deep networks. Major degradation in model expressiveness. Gradient flow problems prevent effective learning. In trained models: unpredictable behavior, extreme sensitivity to inputs.
-\end{ablationbox}
-
-\begin{examplebox}
-\exinput{[Features with varying scales: $10^{-3}$ to $10^3$]}\\
-\exbehavior{Normalize to zero mean, unit variance before processing}\\
-\exeffect{Stable computation regardless of input scale variations}
-\end{examplebox}
-
-\mechfooter{\statuswell}{residual-connections, gradient-flow}
-
-%-----------------------------------------------------------------------------
-\subsubsection{Relative Position Computation}
-\label{mech:relative-position}
-
-\noindent\depthinfo{0.35--0.65} | \primaryimpl{Attention heads} | \litnames{distance tracking, offset computation, structure-aware positioning}
-
-\begin{functiondesc}
-Compute and utilize relative positions between tokens rather than absolute positions. Track distance relationships: ``three tokens back'', ``within same paragraph''. Maintain position information relative to structural boundaries. Enable structure-aware positioning: beginning vs. end of sentences, paragraphs, sections. Support distance-dependent attention patterns. Adapt to document structure rather than raw token count.
-\end{functiondesc}
-
-\begin{implementationbox}
-\attnimpl{Relative-position heads (M, 0.35--0.65) compute position relationships between tokens. Attention weights modulated by distance and structural relationships.}\\
-\circuitimpl{Builds on boundary detection (E) to create structure-aware position representations used throughout depth.}
-\end{implementationbox}
-
-\begin{ablationbox}
-\textbf{Expected ablation:} Moderate impairment in distance-sensitive patterns. Notable degradation on relative position tasks. Reduced ability to distinguish beginning vs. end of structures. Some compensation through absolute position encodings but less flexible.
-\end{ablationbox}
-
-\begin{examplebox}
-\exinput{``The [SUBJECT] quickly [VERB] the [OBJECT].''}\\
-\exbehavior{Compute relative positions: VERB is +1 from SUBJECT, OBJECT is +2 from VERB}\\
-\exeffect{Enable grammatical patterns based on relative structural positions}
-\end{examplebox}
-
-\mechfooter{\statusobs}{positional-encoding, boundary-detection}
+\mechfooter{\statusobs}{abstract-concepts, factual-recall}

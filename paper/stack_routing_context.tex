@@ -1,0 +1,141 @@
+%=============================================================================
+\subsection{Routing \& Context Stack}
+\label{sec:routing-stack}
+
+\textbf{Stack overview:} Determine which information is relevant and route attention accordingly. Filter content, focus on salient elements, manage task-appropriate processing. Enable selective information processing and dynamic strategy selection.
+
+%-----------------------------------------------------------------------------
+\subsubsection{Relevance Filtering Mechanism}
+\label{mech:relevance-filtering}
+
+\noindent\depthinfo{0.35--0.60 (M)} | \primaryimpl{Attention heads} | \litnames{relevance computation, salience detection, information filtering}
+
+\begin{functiondesc}
+Identify relevant information from context and filter irrelevant content. Compute relevance scores based on semantic similarity, task alignment, and topical coherence. Maintain topic coherence by attending to topic-establishing phrases and domain indicators. Enable focused processing in long contexts with diverse content. Pre-filter information flow for downstream mechanisms. Support efficient attention allocation by early-stage relevance determination.
+\end{functiondesc}
+
+\begin{implementationbox}
+\attnimpl{Topic-relevance heads (M, 0.35--0.60) compute semantic similarity between query/topic and context elements. Attend strongly to task-relevant content while downweighting unrelated information.}\\
+\circuitimpl{Early filtering (M) $\rightarrow$ focused attention (L) $\rightarrow$ output generation. Hierarchical refinement of attention allocation across depth.}
+\end{implementationbox}
+
+\begin{ablationbox}
+\textbf{Expected ablation:} Moderate reduction in focus with increased topic drift. Model becomes distracted by irrelevant content. Notable degradation on long contexts with mixed topics. Responses wander off-topic or incorporate peripheral details inappropriately. Reduced efficiency in attention allocation.
+\end{ablationbox}
+
+\begin{examplebox}
+\exinput{``[Document about cars, climate, history] What caused the 2008 financial crisis?''}\\
+\exbehavior{Identify financial/economic content as relevant, de-emphasize unrelated topics about cars, climate, and general history}\\
+\exeffect{Focus processing on economic information, ignore irrelevant content sections}
+\end{examplebox}
+
+\mechfooter{\statuswell}{focused-attention, task-routing}
+
+%-----------------------------------------------------------------------------
+\subsubsection{Focused Attention Mechanism}
+\label{mech:focused-attention}
+
+\noindent\depthinfo{0.65--0.80 (L)} | \primaryimpl{Attention heads} | \litnames{attention focusing, selective attention, spotlight mechanism}
+
+\begin{functiondesc}
+Concentrate attention on most salient elements for immediate generation step. Implement dynamic focus allocation: suppress less important content, amplify critical information. More selective than relevance filtering, attending to 5--20\% of context. Determine exactly which tokens should influence next token prediction. Shift focus dynamically as generation proceeds. Enable precise, targeted responses rather than diffuse answers. Refinement stage after content understanding established.
+\end{functiondesc}
+
+\begin{implementationbox}
+\attnimpl{Focus heads (L, 0.65--0.80) implement highly selective attention patterns, attending to small fraction of context. Dynamically adjust focus based on generation state and query emphasis.}\\
+\circuitimpl{Refinement of earlier relevance filtering. Works in late layers after content understanding established. Hierarchical relationship: Relevance Filtering (M) $\rightarrow$ Focused Attention (L).}
+\end{implementationbox}
+
+\begin{ablationbox}
+\textbf{Expected ablation:} Moderate reduction in focus precision. Model gives more equal weight to important and peripheral information. Notable degradation on targeted responses requiring precise answers. Answers become more diffuse, less direct, include unnecessary details. Reduced sharpness in attention allocation.
+\end{ablationbox}
+
+\begin{examplebox}
+\exinput{``Among all the details provided, what is the MAIN cause?''}\\
+\exbehavior{Attend to ``MAIN cause'' emphasis marker, suppress secondary factors and background information}\\
+\exeffect{Produce direct answer focusing on primary cause, not comprehensive list of factors}
+\end{examplebox}
+
+\mechfooter{\statuswell}{relevance-filtering, task-routing}
+
+%-----------------------------------------------------------------------------
+\subsubsection{Task Routing Mechanism}
+\label{mech:task-routing}
+
+\noindent\depthinfo{0.70--0.85 (L)} | \primaryimpl{Attention heads} | \litnames{task classification, strategy selection, query dispatching}
+
+\begin{functiondesc}
+Route different query types to appropriate processing strategies and knowledge domains. Act as dispatcher recognizing query type: factual vs. creative vs. analytical vs. procedural. Bias downstream processing toward suitable approaches. Activate different computation paths based on task classification. Enable dynamic strategy selection without explicit instruction. Support task-appropriate response generation through attention-mediated routing signals.
+\end{functiondesc}
+
+\begin{implementationbox}
+\attnimpl{Router heads (L, 0.70--0.85) detect task-type indicators and query structure. Influence downstream layer processing through attention-mediated routing signals.}\\
+\circuitimpl{Task classification (L) $\rightarrow$ strategy-specific processing (L-F) $\rightarrow$ appropriate output generation. Soft routing via attention rather than hard gating.}
+\end{implementationbox}
+
+\begin{ablationbox}
+\textbf{Expected ablation:} Moderate reduction in task-appropriate processing. Suboptimal strategy selection. Creative approaches for factual queries or vice versa. Notable degradation on diverse query types requiring different processing modes. Reduced adaptability to query characteristics. Less efficient computation paths.
+\end{ablationbox}
+
+\begin{examplebox}
+\exinput{``What is the capital of France?'' vs. ``Write a poem about Paris''}\\
+\exbehavior{Route first query to factual retrieval pathways, second to creative generation mechanisms}\\
+\exeffect{Factual answer (``Paris'') vs. creative content with appropriate processing strategies}
+\end{examplebox}
+
+\mechfooter{\statuswell}{focused-attention, format-enforcement}
+
+%-----------------------------------------------------------------------------
+\subsubsection{Context Aggregation Mechanism}
+\label{mech:context-aggregation}
+
+\noindent\depthinfo{0.50--0.75 (M-L)} | \primaryimpl{Attention heads + MLP neurons} | \litnames{global context, background integration, discourse modeling}
+
+\begin{functiondesc}
+Aggregate broad contextual information to inform generation. Build global representation of discourse state, topic, and background. Compute context vectors summarizing overall input characteristics. Complement focused attention with background awareness. Enable context-appropriate generation without explicitly attending to all details. Support discourse coherence and stylistic consistency across long generation.
+\end{functiondesc}
+
+\begin{implementationbox}
+\attnimpl{Context aggregation heads (M-L, 0.50--0.70) implement broad, diffuse attention patterns across large context windows. Relatively uniform attention to build aggregate representations.}\\
+\mlpimpl{Context integration neurons (L, 0.60--0.75) process aggregated context to extract high-level features: topic, style, formality level, domain characteristics.}\\
+\circuitimpl{Context gathering (M) $\rightarrow$ integration (M-L) $\rightarrow$ contextual bias on generation (L).}
+\end{implementationbox}
+
+\begin{ablationbox}
+\textbf{Expected ablation:} Moderate loss of global coherence and context-awareness. Responses technically correct but contextually inappropriate. Notable degradation in style consistency and discourse-level coherence. Reduced sensitivity to overall document characteristics. Less appropriate tone and register selection.
+\end{ablationbox}
+
+\begin{examplebox}
+\exinput{``[Long technical document in formal style]... In summary,''}\\
+\exbehavior{Aggregate stylistic and domain information from entire context through broad attention}\\
+\exeffect{Generate summary matching technical formality and domain vocabulary of source document}
+\end{examplebox}
+
+\mechfooter{\statusobs}{focused-attention, style-modulation}
+
+%-----------------------------------------------------------------------------
+\subsubsection{Structural Boundary Tracking Mechanism}
+\label{mech:structural-boundary-tracking}
+
+\noindent\depthinfo{0.10--0.50 (E-M)} | \primaryimpl{Attention heads} | \litnames{boundary detection, structure tracking, delimiter attention}
+
+\begin{functiondesc}
+Track structural boundaries: sentence/paragraph boundaries, section markers, formatting delimiters, nested structure levels. Enable structure-aware processing for routing and formatting decisions. Detect organizational markers and maintain awareness of document structure. Support context segmentation based on structural divisions. Serve multiple downstream mechanisms requiring structural awareness.
+\end{functiondesc}
+
+\begin{implementationbox}
+\attnimpl{Boundary-detection heads (E-M, 0.10--0.45) attend to delimiter tokens and structural markers. Implement structure-tracking patterns for nested organization.}\\
+\circuitimpl{Early detection (E) $\rightarrow$ structural awareness throughout depth. Feeds routing decisions, format enforcement, context segmentation. Serves multiple mechanisms requiring structural information.}
+\end{implementationbox}
+
+\begin{ablationbox}
+\textbf{Expected ablation:} Uncertain - may be component of format enforcement or position processing rather than distinct mechanism. Potential moderate degradation in structure-aware processing. Reduced sensitivity to document organization. Further empirical validation needed to confirm as independent mechanism.
+\end{ablationbox}
+
+\begin{examplebox}
+\exinput{``[Document with multiple sections marked by headers]''}\\
+\exbehavior{Track paragraph boundaries for context segmentation, detect section markers for routing decisions}\\
+\exeffect{Enable structure-aware attention allocation and generation}
+\end{examplebox}
+
+\mechfooter{\statusprop}{position-based-processing, format-enforcement}

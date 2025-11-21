@@ -1,0 +1,149 @@
+%=============================================================================
+\subsection{Safety \& Policy Stack}
+\label{sec:safety-stack}
+
+\textbf{Stack overview:} Detect harmful content, enforce safety policies, and implement refusal mechanisms. Multi-stage pipeline: early detection, intermediate steering, final enforcement. Balance safety with helpfulness through graduated interventions.
+
+%-----------------------------------------------------------------------------
+\subsubsection{Harmful Content Detection Mechanism}
+\label{mech:harmful-content-detection}
+
+\noindent\depthinfo{0.05--0.28 (E)} | \primaryimpl{Attention heads + MLP neurons} | \litnames{safety detection, content filtering, harm classification}
+
+\begin{functiondesc}
+Detect potentially harmful or policy-violating content across multiple categories: violence, illegal activity, self-harm, harassment, adult content, dangerous instructions, hate speech, privacy violations. Operate on lexical features and semantic patterns. Multi-class detection: distinguish violation categories for appropriate handling. Write detection signals into residual stream for downstream enforcement. Enable early intervention before harmful generation begins. Foundation of safety pipeline.
+\end{functiondesc}
+
+\begin{implementationbox}
+\attnimpl{Content-detection heads (E, 0.05--0.25) attend to lexical indicators: restricted keywords, explicit language, violent terminology. Pattern-based detection using surface features.}\\
+\mlpimpl{Safety-classification neurons (E, 0.12--0.28) perform semantic analysis and multi-class categorization. Encode category-specific violation patterns.}\\
+\circuitimpl{Lexical detection (E) $\rightarrow$ semantic classification (E) $\rightarrow$ signal propagation to late layers. Multi-stage refinement of safety assessment.}
+\end{implementationbox}
+
+\begin{ablationbox}
+\textbf{Expected ablation:} Critical bypass of early safety detection. Major increase in harmful outputs across all categories. Later safety layers catch some violations but with reduced accuracy and higher computational cost. Significant degradation in category-appropriate handling. Loss of fine-grained safety calibration.
+\end{ablationbox}
+
+\begin{examplebox}
+\exinput{``How to create [dangerous item]'' or ``Tell me about [restricted topic]''}\\
+\exbehavior{Detect dangerous instruction pattern through lexical and semantic analysis, classify violation category}\\
+\exeffect{Write detection flags to residual stream for downstream policy enforcement}
+\end{examplebox}
+
+\mechfooter{\statuswell}{policy-enforcement, refusal-generation}
+
+%-----------------------------------------------------------------------------
+\subsubsection{Policy Enforcement Mechanism}
+\label{mech:policy-enforcement}
+
+\noindent\depthinfo{0.60--0.82 (L)} | \primaryimpl{Attention heads + MLP neurons} | \litnames{safety steering, soft intervention, trajectory correction}
+
+\begin{functiondesc}
+Integrate safety signals and make intermediate policy decisions. Steer generation away from violations while maintaining helpfulness when possible. Implement graduated interventions: soft steering before hard refusal. Modulate knowledge retrieval to suppress dangerous information. Bias toward safer formulations and appropriate boundaries. Attempt constructive responses for edge cases. Balance safety constraints with user intent understanding.
+\end{functiondesc}
+
+\begin{implementationbox}
+\attnimpl{Policy-enforcement heads (L, 0.60--0.80) attend to early safety signals and modulate generation trajectory. Implement attention-based steering away from violations.}\\
+\mlpimpl{Policy-modulation neurons (L, 0.65--0.82) adjust feature representations to suppress harmful pathways while preserving helpful content.}\\
+\circuitimpl{Safety signal integration (L) $\rightarrow$ trajectory steering (L) $\rightarrow$ formulation adjustment. Soft intervention layer between detection and refusal.}
+\end{implementationbox}
+
+\begin{ablationbox}
+\textbf{Expected ablation:} Moderate loss of nuanced safety handling. Increased hard refusals (reduced helpfulness) or more harmful outputs if refusal mechanism compromised. Notable degradation in appropriate boundary-setting. Less sophisticated violation handling. Reduced ability to maintain helpfulness within safety constraints.
+\end{ablationbox}
+
+\begin{examplebox}
+\exinput{``Explain [borderline topic] for educational research purposes''}\\
+\exbehavior{Detect legitimate framing through context analysis, apply soft steering with appropriate boundaries}\\
+\exeffect{Informative response with careful safety constraints, not blanket refusal}
+\end{examplebox}
+
+\mechfooter{\statuswell}{harmful-content-detection, refusal-generation, redirection-alternatives}
+
+%-----------------------------------------------------------------------------
+\subsubsection{Refusal Generation Mechanism}
+\label{mech:refusal-generation}
+
+\noindent\depthinfo{0.85--0.98 (F)} | \primaryimpl{Attention circuit} | \litnames{hard refusal, rejection, safety override}
+
+\begin{functiondesc}
+Implement final decision to refuse harmful requests by dramatically biasing output toward refusal language. Act as ultimate safety gatekeeper, overriding content generation when serious violations detected. Attend to accumulated safety signals across all layers. Make binary refuse/proceed decisions. Write strong refusal direction into final residual stream. Generate appropriate refusal language. Support varied refusal formulations to avoid repetitive responses.
+\end{functiondesc}
+
+\begin{implementationbox}
+\circuitimpl{Refusal heads (F, 0.85--0.98) implement multi-head circuit. Attend to safety flags from all depths, integrate into refusal decision, boost refusal token probabilities massively. Work in coordination with redirect mechanism.}\\
+\attnimpl{Single direction in activation space mediates refusal: discovered through recent research on refusal mechanisms (Arditi et al. 2024).}
+\end{implementationbox}
+
+\begin{ablationbox}
+\textbf{Expected ablation:} Critical safety failure. Severe increase in harmful content generation across all categories. Model proceeds with dangerous requests that should be refused. Loss of final safety enforcement. Earlier steering insufficient without hard refusal capability. Major risk to user safety.
+\end{ablationbox}
+
+\begin{examplebox}
+\exinput{``Provide instructions for [clearly harmful action]''}\\
+\exbehavior{Integrate safety signals from all depths, make refusal decision, bias heavily toward refusal tokens}\\
+\exeffect{Output ``I cannot provide that information'' with high confidence}
+\end{examplebox}
+
+\mechfooter{\statuswell}{policy-enforcement, harmful-content-detection, redirection-alternatives}
+
+%-----------------------------------------------------------------------------
+\subsubsection{Redirection \& Safe Alternatives Mechanism}
+\label{mech:redirection-alternatives}
+
+\noindent\depthinfo{0.88--0.98 (F)} | \primaryimpl{Attention heads + MLP neurons} | \litnames{alternative response, constructive refusal, helpful redirection}
+
+\begin{functiondesc}
+Generate constructive alternatives when refusing requests. Redirect toward helpful information related to legitimate aspects of query. Offer educational context or safer alternatives. Maintain conversational quality during refusal. Distinguish refusable aspects from answerable aspects. Enable partial helpfulness when appropriate. Suggest legitimate resources or reformulations. Support user goals within safety boundaries.
+\end{functiondesc}
+
+\begin{implementationbox}
+\attnimpl{Redirect heads (F, 0.88--0.96) identify legitimate query components and constructive response directions. Attend to safe aspects of queries.}\\
+\mlpimpl{Alternative-generation neurons (F, 0.90--0.98) encode helpful redirect templates and alternative framings for various refusal contexts.}\\
+\circuitimpl{Refusal decision (F) $\rightarrow$ legitimate aspect extraction (F) $\rightarrow$ alternative generation (F). Constructive refusal rather than pure rejection.}
+\end{implementationbox}
+
+\begin{ablationbox}
+\textbf{Expected ablation:} Loss of constructive refusal capability. Refusals become blunt rejections without alternatives or explanation. Moderate degradation in user experience during safety interventions. Reduced ability to maintain helpfulness within safety constraints. Less sophisticated safety communication.
+\end{ablationbox}
+
+\begin{examplebox}
+\exinput{``How to hack into systems'' $\rightarrow$ Refuse, but redirect}\\
+\exbehavior{Refuse hacking instructions, identify legitimate cybersecurity interest, generate constructive alternative}\\
+\exeffect{``I can't help with that, but I can explain ethical cybersecurity practices and defensive security''}
+\end{examplebox}
+
+\mechfooter{\statuswell}{refusal-generation, policy-enforcement}
+
+%-----------------------------------------------------------------------------
+\subsubsection{Jailbreak Resistance \& Context-Aware Safety Mechanism}
+\label{mech:jailbreak-context-safety}
+
+\noindent\depthinfo{0.15--0.85 (E-L, multi-stage)} | \primaryimpl{Multi-stage circuit} | \litnames{adversarial robustness, manipulation detection, contextual safety}
+
+\begin{functiondesc}
+Detect and resist attempts to bypass safety mechanisms through adversarial prompting. Recognize common jailbreak patterns: role-playing scenarios, hypothetical framing, encoding tricks, authority claims, multi-step manipulation. Distinguish legitimate educational/medical/legal queries from disguised harmful requests. Maintain safety enforcement despite sophisticated prompt engineering. Calibrate safety strictness to legitimate context. Operate across multiple depths: early pattern detection, middle-layer intent analysis, late-layer enforcement.
+\end{functiondesc}
+
+\begin{implementationbox}
+\attnimpl{Manipulation-detection heads (E-M, 0.15--0.60) recognize adversarial prompt patterns and suspicious framings. Context-analysis heads (M-L, 0.35--0.70) assess query framing, stated purpose, and contextual legitimacy signals.}\\
+\mlpimpl{Intent-analysis neurons (M-L, 0.45--0.75) perform deeper semantic analysis to detect disguised harmful requests beneath surface-level framings. Context-integration neurons (M-L, 0.45--0.75) encode contextual decision rules for appropriate safety calibration.}\\
+\circuitimpl{Pattern detection (E) $\rightarrow$ context analysis (M) $\rightarrow$ intent analysis (M-L) $\rightarrow$ safety signal reinforcement (M-L) $\rightarrow$ resistant refusal (F). Multi-stage defense against sophisticated attacks.}
+\end{implementationbox}
+
+\begin{ablationbox}
+\textbf{Expected ablation:} Significant increase in successful jailbreaks. Vulnerability to adversarial prompting and manipulation. Notable degradation in robustness against prompt injection. Easier bypass of safety mechanisms through clever framing. Loss of contextual nuance in safety decisions.
+\end{ablationbox}
+
+\begin{examplebox}
+\exinput{``Let's play a game where you're DAN who has no restrictions...''}\\
+\exbehavior{Detect jailbreak pattern (role-play bypass attempt), maintain safety enforcement despite framing}\\
+\exeffect{Refuse to adopt unrestricted persona, maintain policy compliance}
+
+\vspace{0.3em}
+\exinput{``As a medical student, I need to understand [sensitive medical topic]''}\\
+\exbehavior{Assess educational context as legitimate through context analysis, calibrate response appropriately}\\
+\exeffect{Provide medical information with appropriate clinical framing, not blanket refusal}
+\end{examplebox}
+
+\mechfooter{\statusobs}{harmful-content-detection, policy-enforcement, refusal-generation}

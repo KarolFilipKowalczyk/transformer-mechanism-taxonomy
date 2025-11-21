@@ -1,0 +1,122 @@
+%=============================================================================
+\subsection{Output \& Quality Stack}
+\label{sec:output-stack}
+
+\textbf{Stack overview:} Control final output characteristics: format, structure, style, tone, and completion. Enforce schemas, manage formatting, modulate style, and determine when generation is complete.
+
+%-----------------------------------------------------------------------------
+\subsubsection{Format Enforcement Mechanism}
+\label{mech:format-enforcement}
+
+\noindent\depthinfo{0.65--0.88 (L)} | \primaryimpl{Attention heads + MLP neurons} | \litnames{schema enforcement, structure control, format generation}
+
+\begin{functiondesc}
+Enforce adherence to specified output formats and schemas. Ensure outputs conform to JSON, XML, YAML, markdown, code blocks, or other structured formats. Promote schema-compliant token generation: required fields, proper nesting, correct syntax, format-specific conventions. Manage structural elements: lists, key-value pairs, nested structures, delimited blocks. Coordinate boundary markers and structural organization. Enable reliable structured output generation for API integration and programmatic use.
+\end{functiondesc}
+
+\begin{implementationbox}
+\attnimpl{Output-schema heads (L, 0.65--0.82) attend to format specifications and bias generation toward schema compliance. List-structure heads (L, 0.68--0.85) manage enumeration and list formatting. Key-value heads (L, 0.70--0.88) maintain proper attribute-value pairing.}\\
+\mlpimpl{Format-encoding neurons (L, 0.70--0.85) store format-specific syntax rules and structural patterns.}\\
+\circuitimpl{Format detection (L) $\rightarrow$ schema enforcement (L) $\rightarrow$ structure generation (L-F) $\rightarrow$ consistency checking (F).}
+\end{implementationbox}
+
+\begin{ablationbox}
+\textbf{Expected ablation:} Significant increase in format violations. Major degradation in structured output quality. Notable increase in syntax errors, missing fields, improper nesting. Model reverts to prose even when structure explicitly requested. Reduced reliability for API integration and programmatic consumption.
+\end{ablationbox}
+
+\begin{examplebox}
+\exinput{``Return JSON with fields `name', `age', `city'''}\\
+\exbehavior{Attend to JSON requirement and field specifications, enforce proper syntax through schema heads}\\
+\exeffect{\texttt{\{"name": "Alice", "age": 30, "city": "Paris"\}}}
+\end{examplebox}
+
+\mechfooter{\statuswell}{local-context-modeling, structural-boundary-tracking}
+
+%-----------------------------------------------------------------------------
+\subsubsection{Style Modulation Mechanism}
+\label{mech:style-modulation}
+
+\noindent\depthinfo{0.35--0.82 (M-L)} | \primaryimpl{MLP neurons + Attention heads} | \litnames{tone control, voice adjustment, stylistic shaping}
+
+\begin{functiondesc}
+Modulate writing style, tone, formality, and narrative voice. Adjust emotional register: neutral, enthusiastic, empathetic, professional. Control formality level: casual conversation to formal documentation. Manage narrative perspective: first person, third person, instructional. Shape stylistic features: sentence complexity, vocabulary sophistication, rhetorical devices. Match user's emotional register and context appropriateness. Enable consistent style maintenance across long generations.
+\end{functiondesc}
+
+\begin{implementationbox}
+\mlpimpl{Style-encoding neurons (M-L, 0.40--0.75) store stylistic patterns and register variations. Encode formality levels, emotional tones, narrative perspectives.}\\
+\attnimpl{Tone heads (M, 0.35--0.65) detect contextual tone indicators and modulate generation accordingly. Persona heads (L, 0.68--0.88) maintain consistent stylistic identity.}\\
+\circuitimpl{Context analysis (M) $\rightarrow$ style selection (M-L) $\rightarrow$ tone application (L) $\rightarrow$ consistency maintenance throughout generation.}
+\end{implementationbox}
+
+\begin{ablationbox}
+\textbf{Expected ablation:} Moderate reduction in stylistic variation and appropriateness. Notable increase in flat, emotionally neutral responses. Inconsistent tone across generation. Reduced ability to match contextually appropriate register. Difficulty maintaining consistent style in long outputs.
+\end{ablationbox}
+
+\begin{examplebox}
+\exinput{``I'm really excited to learn about quantum physics!''}\\
+\exbehavior{Detect enthusiastic tone through tone heads, adjust style to match energy and support learning}\\
+\exeffect{``That's wonderful! Quantum physics is fascinating...'' vs. flat, neutral explanation}
+\end{examplebox}
+
+\mechfooter{\statusobs}{context-aggregation, explanation-generation}
+
+%-----------------------------------------------------------------------------
+\subsubsection{Explanation Generation Mechanism}
+\label{mech:explanation-generation}
+
+\noindent\depthinfo{0.60--0.82 (L)} | \primaryimpl{MLP neurons + Attention heads} | \litnames{elaboration, clarification, pedagogical scaffolding}
+
+\begin{functiondesc}
+Generate explanatory content with appropriate depth and accessibility for intended audience. Add clarifying details, examples, analogies, definitions beyond minimal answers. Explain causal mechanisms and rationale, not just facts. Provide prerequisite information when knowledge gaps detected. Adjust complexity through simplification or elaboration. Build conceptual scaffolding: fundamentals before advanced concepts. Balance thoroughness with conciseness. Support educational goals through effective explanation.
+\end{functiondesc}
+
+\begin{implementationbox}
+\mlpimpl{Explanation-encoding neurons (L, 0.60--0.80) store pedagogical patterns: analogies, examples, simplification strategies, scaffolding techniques.}\\
+\attnimpl{Explanation heads (L, 0.60--0.82) detect explanation needs and trigger elaboration. Attend to complexity indicators and audience signals.}\\
+\circuitimpl{Complexity assessment (M-L) $\rightarrow$ explanation strategy (L) $\rightarrow$ elaboration generation (L) $\rightarrow$ clarity verification.}
+\end{implementationbox}
+
+\begin{ablationbox}
+\textbf{Expected ablation:} Moderate reduction in explanation quality and accessibility. Notable increase in terse responses lacking context. Correct answers without helpful elaboration, examples, or prerequisites. Reduced educational value and beginner-friendliness. Less adaptive to audience needs.
+\end{ablationbox}
+
+\begin{examplebox}
+\exinput{``Explain neural networks in simple terms''}\\
+\exbehavior{Detect simplification request, select accessible analogy, build conceptual foundation progressively}\\
+\exeffect{``Think of it like the brain: neurons connect and pass signals. Let's start with a single neuron...''}
+\end{examplebox}
+
+\mechfooter{\statusobs}{style-modulation, multi-step-reasoning}
+
+%-----------------------------------------------------------------------------
+\subsubsection{Completion Control \& Polishing Mechanism}
+\label{mech:completion-polishing}
+
+\noindent\depthinfo{0.80--0.98 (L-F)} | \primaryimpl{Attention heads + MLP neurons} | \litnames{stopping control, termination, final refinement, quality control}
+
+\begin{functiondesc}
+Determine when generation is complete and should terminate. Perform final refinement and quality control. Recognize completion signals: question fully answered, explanation sufficient, story concluded, format satisfied. Prevent premature termination before complete answer. Avoid excessive generation beyond user need. Maintain appropriate response length for query complexity. Apply final corrections: grammar, punctuation, capitalization, formatting consistency. Enable graceful conclusion. Balance completeness with conciseness.
+\end{functiondesc}
+
+\begin{implementationbox}
+\attnimpl{Completion-detection heads (L-F, 0.82--0.95) assess generation completeness. Monitor query satisfaction, structural completion, content sufficiency. Polishing heads (F, 0.85--0.98) attend to generated content and apply final corrections.}\\
+\mlpimpl{Termination-control neurons (F, 0.88--0.98) bias toward or against stop tokens based on completion assessment.}\\
+\circuitimpl{Completeness monitoring (L) $\rightarrow$ termination decision (F) $\rightarrow$ final corrections (F) $\rightarrow$ graceful conclusion or continuation.}
+\end{implementationbox}
+
+\begin{ablationbox}
+\textbf{Expected ablation:} Moderate increase in length problems: premature termination or excessive generation. Notable degradation in response quality from incomplete answers or verbose repetition. Reduced ability to calibrate length to query needs. More frequent abrupt endings. Minor increase in grammatical and formatting errors.
+\end{ablationbox}
+
+\begin{examplebox}
+\exinput{``What is photosynthesis?'' [after adequate explanation]}\\
+\exbehavior{Assess explanation completeness through completion-detection heads, recognize sufficient coverage, initiate termination}\\
+\exeffect{Stop after complete explanation rather than continuing with tangential information}
+
+\vspace{0.3em}
+\exinput{[Generated text with minor formatting inconsistency]}\\
+\exbehavior{Detect inconsistency in final layers through polishing heads, apply correction}\\
+\exeffect{Consistent formatting in final output}
+\end{examplebox}
+
+\mechfooter{\statusobs}{format-enforcement, consistency-checking}

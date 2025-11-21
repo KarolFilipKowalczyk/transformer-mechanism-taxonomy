@@ -1,0 +1,170 @@
+%=============================================================================
+\subsection{Memory \& Knowledge Stack}
+\label{sec:memory-stack}
+
+\textbf{Stack overview:} Retrieve factual information, entity properties, and structured knowledge from model parameters. Move relevant information to output positions and suppress irrelevant content. Enable factual grounding and knowledge-based reasoning.
+
+%-----------------------------------------------------------------------------
+\subsubsection{Factual Recall Mechanism}
+\label{mech:factual-recall}
+
+\noindent\depthinfo{0.35--0.75 (M-L)} | \primaryimpl{MLP neurons + Attention heads} | \litnames{fact retrieval, knowledge recall, factual memory}
+
+\begin{functiondesc}
+Retrieve factual associations and relationships stored in model parameters during training. Access learned knowledge: entity properties, relational facts, world knowledge. Implement distributed key-value memory: query patterns (keys) activate factual content (values). Store knowledge hierarchically across depths: surface patterns (early), core facts (middle), abstract concepts (late). Enable factual grounding without external retrieval. Support question answering and knowledge-intensive generation.
+\end{functiondesc}
+
+\begin{implementationbox}
+\mlpimpl{Knowledge neurons (M-L, 0.35--0.75) store factual associations distributed across layers. First sublayer: detect entity/query patterns (key matching). Second sublayer: provide factual content (value retrieval). Single fact distributed across multiple neurons; single neuron contributes to multiple facts.}\\
+\attnimpl{Fact retrieval heads (M, 0.38--0.62) identify factual queries. Entity heads (M, 0.35--0.65) detect entities requiring fact retrieval.}\\
+\circuitimpl{Entity detection $\rightarrow$ MLP fact retrieval $\rightarrow$ name-mover output across 5--15 layers. Distributed factual recall circuit.}
+\end{implementationbox}
+
+\begin{ablationbox}
+\textbf{Expected ablation:} Severe loss of factual knowledge. Linguistic fluency maintained but factual grounding lost. Major degradation on knowledge-intensive tasks and question answering. Model produces plausible-sounding but factually incorrect content. Reduced accuracy on entity property questions and relational reasoning.
+\end{ablationbox}
+
+\begin{examplebox}
+\exinput{``The Eiffel Tower is located in...''}\\
+\exbehavior{Detect ``Eiffel Tower'' entity, retrieve location association from MLP parameters via key-value memory}\\
+\exeffect{Output ``Paris'' via stored factual knowledge without external retrieval}
+\end{examplebox}
+
+\mechfooter{\statuswell}{entity-grounding, schema-retrieval, output-routing}
+
+%-----------------------------------------------------------------------------
+\subsubsection{Entity Grounding Mechanism}
+\label{mech:entity-grounding}
+
+\noindent\depthinfo{0.08--0.65 (E-M, multi-stage)} | \primaryimpl{Attention heads} | \litnames{entity identification, entity tracking, coreference resolution}
+
+\begin{functiondesc}
+Identify, track, and link entity mentions across context. Recognize named entities (people, places, organizations) and their properties. Link different references to same entity: full names, abbreviations, nicknames, pronouns, descriptions. Resolve coreference through multi-stage processing: early syntactic binding, middle semantic resolution. Maintain unified entity representations across long contexts. Enable entity-aware processing for factual retrieval and reasoning. Ground references in specific entities rather than generic concepts.
+\end{functiondesc}
+
+\begin{implementationbox}
+\attnimpl{Entity heads (M, 0.35--0.65) attend strongly to proper nouns and entity mentions. Reference resolution heads (E, 0.08--0.25) perform initial pronoun-to-noun binding using syntactic cues. Coreference heads (M, 0.35--0.60) resolve complex cases requiring semantic understanding. Duplicate-token heads (M, 0.30--0.58) detect repeated entity mentions.}\\
+\circuitimpl{Multi-stage resolution: syntactic binding (E) $\rightarrow$ semantic integration (M) $\rightarrow$ entity tracking (M-L). Entity detection $\rightarrow$ factual retrieval $\rightarrow$ output routing. Parallel tracking of multiple entities across context.}
+\end{implementationbox}
+
+\begin{ablationbox}
+\textbf{Expected ablation:} Significant degradation in entity-based reasoning and factual accuracy. Loss of entity linking and tracking across references. Major accuracy drop on who/what/where questions. Confusion between different entities with similar names. Reduced coreference resolution capability. Difficulty maintaining entity coherence in long contexts.
+\end{ablationbox}
+
+\begin{examplebox}
+\exinput{``Apple Inc. released new products. AAPL stock rose. The company announced...''}\\
+\exbehavior{Link ``Apple Inc.'', ``AAPL'', and ``the company'' to single entity through entity heads and coreference resolution}\\
+\exeffect{Maintain unified entity representation across diverse referring expressions}
+\end{examplebox}
+
+\mechfooter{\statuswell}{factual-recall, output-routing, pattern-completion}
+
+%-----------------------------------------------------------------------------
+\subsubsection{Schema Retrieval Mechanism}
+\label{mech:schema-retrieval}
+
+\noindent\depthinfo{0.45--0.70 (M-L)} | \primaryimpl{MLP neurons + Attention heads} | \litnames{template retrieval, structural knowledge, procedural memory}
+
+\begin{functiondesc}
+Retrieve structured knowledge schemas, templates, and typical sequences from training. Access organizational patterns: event scripts (restaurant visit: enter, order, eat, pay, leave), document structures (research paper: abstract, introduction, methods, results, discussion), procedural knowledge (scientific method steps). Enable structured generation following learned patterns. Support script-based reasoning about typical situations and conventional formats. Provide organizational frameworks for complex content generation.
+\end{functiondesc}
+
+\begin{implementationbox}
+\mlpimpl{Schema storage neurons (M-L, 0.45--0.70) encode structured templates and procedural knowledge as hierarchical patterns. Store conventional sequences and organizational frameworks.}\\
+\attnimpl{Schema retrieval heads (M, 0.45--0.68) detect schema-triggering contexts and activate appropriate templates.}\\
+\circuitimpl{Context detection $\rightarrow$ schema activation $\rightarrow$ structured generation. Templates guide multi-step generation.}
+\end{implementationbox}
+
+\begin{ablationbox}
+\textbf{Expected ablation:} Loss of structured knowledge organization. Facts provided but poorly organized. Notable degradation on tasks requiring conventional formats or typical sequences. Reduced ability to follow procedural patterns. Difficulty generating well-structured documents. Loss of script-based reasoning for common scenarios.
+\end{ablationbox}
+
+\begin{examplebox}
+\exinput{``Describe the water cycle.''}\\
+\exbehavior{Retrieve cyclical process schema from MLP storage, activate sequential template}\\
+\exeffect{Organized response following natural process structure: evaporation $\rightarrow$ condensation $\rightarrow$ precipitation $\rightarrow$ collection}
+\end{examplebox}
+
+\mechfooter{\statusobs}{factual-recall, multi-step-reasoning}
+
+%-----------------------------------------------------------------------------
+\subsubsection{Long-Range Dependency Maintenance Mechanism}
+\label{mech:long-range-dependency}
+
+\noindent\depthinfo{0.40--0.65 (M)} | \primaryimpl{Attention heads} | \litnames{long-distance attention, dependency maintenance, distant connection}
+
+\begin{functiondesc}
+Maintain connections between syntactically or semantically related elements across large distances (20--100+ tokens). Track dependencies without degradation over distance. Implement transformer advantage over RNNs: direct long-distance connections. Support nested structures, long-distance agreement, and complex syntactic relationships. Maintain multiple simultaneous long-range connections. Enable semantic relationship maintenance for knowledge integration across extended context.
+\end{functiondesc}
+
+\begin{implementationbox}
+\attnimpl{Long-range dependency heads (M, 0.40--0.65) attend across large token distances to maintain syntactic and semantic relationships. Relatively flat attention distribution over distant elements enabling distance-invariant connection maintenance.}\\
+\circuitimpl{Parallel to local processing. Maintains global structural information while other mechanisms process local patterns. Supports entity tracking and factual recall across long contexts.}
+\end{implementationbox}
+
+\begin{ablationbox}
+\textbf{Expected ablation:} Notable degradation on complex sentences and long-range relationships. Significant performance loss on long-distance syntactic agreement. Severe impact on nested structures and embedded clauses. Model treats distant elements as independent. Reduced ability to maintain semantic coherence across extended contexts.
+\end{ablationbox}
+
+\begin{examplebox}
+\exinput{``The book [that Alice mentioned [that Bob recommended]] was excellent.''}\\
+\exbehavior{``was'' attends to ``book'' across two levels of embedding, maintaining subject-verb dependency}\\
+\exeffect{Maintain grammatical agreement despite intervening nested clauses}
+\end{examplebox}
+
+\mechfooter{\statusobs}{entity-grounding, factual-recall}
+
+%-----------------------------------------------------------------------------
+\subsubsection{Output Routing Mechanism}
+\label{mech:output-routing}
+
+\noindent\depthinfo{0.60--0.85 (L)} | \primaryimpl{Attention circuit} | \litnames{information movement, content copying, answer extraction}
+
+\begin{functiondesc}
+Move retrieved information to output positions where needed for generation. Route entities, facts, and content from earlier context to prediction position. Implement competitive selection among multiple candidates through antagonistic head coordination. Suppress incorrect alternatives while promoting correct content. Multi-stage process: candidate identification, competition through S-inhibition, selection, movement to output. Central mechanism for question answering, completion, and factual generation. Enable disambiguation in ambiguous contexts.
+\end{functiondesc}
+
+\begin{implementationbox}
+\circuitimpl{Name-mover heads (L, 0.60--0.80) attend to relevant content and copy to output position. S-inhibition heads (L, 0.62--0.82) suppress contextually inappropriate alternatives by attending to wrong answers and decreasing their logits. Copy-suppression heads (L, 0.65--0.85) prevent inappropriate repetition. Multi-head circuit implementing competitive selection through coordinated attention.}\\
+\attnimpl{IOI (Indirect Object Identification) circuit extensively studied: duplicate-token detection $\rightarrow$ S-inhibition $\rightarrow$ name-mover across 8--12 layers. Canonical example of competitive output routing.}
+\end{implementationbox}
+
+\begin{ablationbox}
+\textbf{Expected ablation:} Severe degradation in converting knowledge to output. Model knows facts but cannot output them correctly. Major accuracy drop on question answering and cloze completion. Entity confusion and selection errors in ambiguous contexts. Increased output of recently mentioned but incorrect entities. Loss of competitive selection capability.
+\end{ablationbox}
+
+\begin{examplebox}
+\exinput{``Alice and Bob went shopping. Alice gave the receipt to...''}\\
+\exbehavior{Duplicate-token detects ``Alice'' repetition, S-inhibition suppresses subject ``Alice'', name-mover copies indirect object ``Bob'' to output}\\
+\exeffect{Complete with ``Bob'' through IOI circuit competitive selection}
+\end{examplebox}
+
+\mechfooter{\statuswell}{entity-grounding, factual-recall, repetition-cycle-recognition}
+
+%-----------------------------------------------------------------------------
+\subsubsection{Memory Consolidation Mechanism}
+\label{mech:memory-consolidation}
+
+\noindent\depthinfo{0.50--0.75 (M-L)} | \primaryimpl{MLP neurons + Attention heads} | \litnames{knowledge integration, cross-memory synthesis, multi-source retrieval}
+
+\begin{functiondesc}
+Integrate multiple memory sources (facts, schemas, entities) into coherent knowledge representations. Handle queries requiring synthesis across memory types: entity properties combined with factual knowledge within schematic frameworks. Enable cross-memory integration for complex questions. Support knowledge composition beyond single-fact retrieval. Coordinate between factual recall, schema retrieval, and entity grounding mechanisms.
+\end{functiondesc}
+
+\begin{implementationbox}
+\mlpimpl{Memory integration neurons (M-L, 0.50--0.75) coordinate information from multiple memory types. Encode integration patterns for cross-memory queries.}\\
+\attnimpl{Cross-memory attention heads (L, 0.60--0.75) gather information from diverse memory sources for unified response generation.}\\
+\circuitimpl{Multi-source retrieval $\rightarrow$ integration $\rightarrow$ coherent output. Coordinates factual recall, schema, and entity mechanisms.}
+\end{implementationbox}
+
+\begin{ablationbox}
+\textbf{Expected ablation:} Uncertain - may be emergent behavior rather than distinct mechanism. Potential moderate degradation in complex multi-source queries. Reduced ability to synthesize information across memory types. Queries requiring integration may receive fragmented responses. Further empirical validation needed.
+\end{ablationbox}
+
+\begin{examplebox}
+\exinput{``Describe Einstein's contributions to physics in the context of early 20th century science.''}\\
+\exbehavior{Retrieve Einstein facts, access historical context schema, integrate entity properties with temporal framework}\\
+\exeffect{Synthesized response combining entity knowledge, factual content, and schematic organization}
+\end{examplebox}
+
+\mechfooter{\statusprop}{factual-recall, schema-retrieval, entity-grounding}
