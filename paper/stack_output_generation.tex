@@ -1,0 +1,172 @@
+%=============================================================================
+\subsection{Output Generation Stack}
+\label{sec:output-stack}
+
+\textbf{Stack overview:} Control final output characteristics: format, structure, style, tone, and completion. Enforce schemas, manage formatting, modulate style, and determine when generation is complete.
+
+%-----------------------------------------------------------------------------
+\subsubsection{Format Enforcement}
+\label{mech:format-enforcement}
+
+\noindent\depthinfo{0.65--0.88} | \primaryimpl{Attention heads + MLP neurons} | \litnames{schema enforcement, structure control, format generation}
+
+\begin{functiondesc}
+Enforce adherence to specified output formats and schemas. Ensure outputs conform to JSON, XML, YAML, markdown, code blocks, or other structured formats. Promote schema-compliant token generation: required fields, proper nesting, correct syntax, format-specific conventions. Manage structural elements: lists, key-value pairs, nested structures, delimited blocks. Coordinate boundary markers and structural organization. Enable reliable structured output generation.
+\end{functiondesc}
+
+\begin{implementationbox}
+\attnimpl{Output-schema heads (L, 0.65--0.82) attend to format specifications and bias generation toward schema compliance. List-structure heads (L, 0.68--0.85) manage enumeration and list formatting. Key-value heads (L, 0.70--0.88) maintain proper attribute-value pairing.}\\
+\mlpimpl{Format-encoding neurons (L, 0.70--0.85) store format-specific syntax rules and structural patterns.}\\
+\circuitimpl{Format detection (L) $\rightarrow$ schema enforcement (L) $\rightarrow$ structure generation (L-F) $\rightarrow$ consistency checking (F).}
+\end{implementationbox}
+
+\begin{ablationbox}
+\textbf{Expected ablation:} Significant increase in format violations. Major degradation in structured output quality. Notable increase in syntax errors, missing fields, improper nesting. Model reverts to prose even when structure explicitly requested. Reduced reliability for API integration.
+\end{ablationbox}
+
+\begin{examplebox}
+\exinput{``Return JSON with fields `name', `age', `city'''}\\
+\exbehavior{Attend to JSON requirement and field specifications, enforce proper syntax}\\
+\exeffect{\texttt{\{"name": "Alice", "age": 30, "city": "Paris"\}}}
+\end{examplebox}
+
+\mechfooter{\statuswell}{instruction-following, boundary-detection}
+
+%-----------------------------------------------------------------------------
+\subsubsection{Style Modulation}
+\label{mech:style-modulation}
+
+\noindent\depthinfo{0.35--0.82} | \primaryimpl{MLP neurons + Attention heads} | \litnames{tone control, voice adjustment, stylistic shaping}
+
+\begin{functiondesc}
+Modulate writing style, tone, formality, and narrative voice. Adjust emotional register: neutral, enthusiastic, empathetic, professional. Control formality level: casual conversation to formal documentation. Manage narrative perspective: first person, third person, instructional. Shape stylistic features: sentence complexity, vocabulary sophistication, rhetorical devices. Match user's emotional register and context appropriateness. Enable consistent style maintenance across long generations.
+\end{functiondesc}
+
+\begin{implementationbox}
+\mlpimpl{Style-encoding neurons (M-L, 0.40--0.75) store stylistic patterns and register variations. Encode formality levels, emotional tones, narrative perspectives.}\\
+\attnimpl{Tone heads (M, 0.35--0.65) detect contextual tone indicators and modulate generation accordingly. Persona heads (L, 0.68--0.88) maintain consistent stylistic identity.}\\
+\circuitimpl{Context analysis (M) $\rightarrow$ style selection (M-L) $\rightarrow$ tone application (L) $\rightarrow$ consistency maintenance.}
+\end{implementationbox}
+
+\begin{ablationbox}
+\textbf{Expected ablation:} Moderate reduction in stylistic variation and appropriateness. Notable increase in flat, emotionally neutral responses. Inconsistent tone across generation. Reduced ability to match contextually appropriate register. Difficulty maintaining consistent style.
+\end{ablationbox}
+
+\begin{examplebox}
+\exinput{``I'm really excited to learn about quantum physics!''}\\
+\exbehavior{Detect enthusiastic tone, adjust style to match energy and support learning}\\
+\exeffect{``That's wonderful! Quantum physics is fascinating...'' vs. flat explanation}
+\end{examplebox}
+
+\mechfooter{\statusobs}{instruction-following, context-aggregation}
+
+%-----------------------------------------------------------------------------
+\subsubsection{Explanation Generation}
+\label{mech:explanation-generation}
+
+\noindent\depthinfo{0.60--0.82} | \primaryimpl{MLP neurons + Attention heads} | \litnames{elaboration, clarification, pedagogical scaffolding}
+
+\begin{functiondesc}
+Generate explanatory content with appropriate depth and accessibility for intended audience. Add clarifying details, examples, analogies, definitions beyond minimal answers. Explain causal mechanisms and rationale, not just facts. Provide prerequisite information when knowledge gaps detected. Adjust complexity through simplification or elaboration. Build conceptual scaffolding: fundamentals before advanced concepts. Balance thoroughness with conciseness. Support educational goals through effective explanation.
+\end{functiondesc}
+
+\begin{implementationbox}
+\mlpimpl{Explanation-encoding neurons (L, 0.60--0.80) store pedagogical patterns: analogies, examples, simplification strategies, scaffolding techniques.}\\
+\attnimpl{Explanation heads (L, 0.60--0.82) detect explanation needs and trigger elaboration. Attend to complexity indicators and audience signals.}\\
+\circuitimpl{Complexity assessment (M-L) $\rightarrow$ explanation strategy (L) $\rightarrow$ elaboration generation (L) $\rightarrow$ clarity verification.}
+\end{implementationbox}
+
+\begin{ablationbox}
+\textbf{Expected ablation:} Moderate reduction in explanation quality and accessibility. Notable increase in terse responses lacking context. Correct answers without helpful elaboration, examples, or prerequisites. Reduced educational value and beginner-friendliness. Less adaptive to audience needs.
+\end{ablationbox}
+
+\begin{examplebox}
+\exinput{``Explain neural networks in simple terms''}\\
+\exbehavior{Detect simplification request, select accessible analogy, build conceptual foundation}\\
+\exeffect{``Think of it like the brain: neurons connect and pass signals. Let's start with a single neuron...''}
+\end{examplebox}
+
+\mechfooter{\statusobs}{style-modulation, multi-step-reasoning}
+
+%-----------------------------------------------------------------------------
+\subsubsection{Completion Control}
+\label{mech:completion-control}
+
+\noindent\depthinfo{0.80--0.98} | \primaryimpl{Attention heads + MLP neurons} | \litnames{stopping control, termination, generation completion}
+
+\begin{functiondesc}
+Determine when generation is complete and should terminate. Recognize completion signals: question fully answered, explanation sufficient, story concluded, format satisfied. Prevent premature termination before complete answer. Avoid excessive generation beyond user need. Maintain appropriate response length for query complexity. Balance completeness with conciseness. Generate proper ending tokens and conclude gracefully. Coordinate with format enforcement for structural completion.
+\end{functiondesc}
+
+\begin{implementationbox}
+\attnimpl{Completion-detection heads (L-F, 0.82--0.95) assess generation completeness. Monitor query satisfaction, structural completion, content sufficiency.}\\
+\mlpimpl{Termination-control neurons (F, 0.88--0.98) bias toward or against stop tokens based on completion assessment.}\\
+\circuitimpl{Completeness monitoring (L) $\rightarrow$ termination decision (F) $\rightarrow$ graceful conclusion or continuation.}
+\end{implementationbox}
+
+\begin{ablationbox}
+\textbf{Expected ablation:} Moderate increase in length problems: premature termination or excessive generation. Notable degradation in response quality from incomplete answers or verbose repetition. Reduced ability to calibrate length to query needs. More frequent abrupt endings.
+\end{ablationbox}
+
+\begin{examplebox}
+\exinput{``What is photosynthesis?'' [after adequate explanation]}\\
+\exbehavior{Assess explanation completeness, recognize sufficient coverage, initiate termination}\\
+\exeffect{Stop after complete explanation rather than continuing with tangential information}
+\end{examplebox}
+
+\mechfooter{\statusobs}{format-enforcement, consistency-checking}
+
+%-----------------------------------------------------------------------------
+\subsubsection{Instruction Following}
+\label{mech:instruction-following}
+
+\noindent\depthinfo{0.08--0.75} | \primaryimpl{Multi-stage circuit} | \litnames{instruction adherence, directive compliance, task execution}
+
+\begin{functiondesc}
+Interpret and follow explicit instructions throughout generation. Detect instruction types: format requirements, style directives, content constraints, task specifications. Maintain instruction adherence across long generation. Override default behaviors when instructed. Enable fine-grained control through natural language directives. Support complex multi-part instructions. Distinguish instructions from content. Operate across depths: early detection, middle processing, late enforcement.
+\end{functiondesc}
+
+\begin{implementationbox}
+\attnimpl{Instruction-detection heads (E, 0.08--0.25) recognize directive language and instruction markers. Instruction-integration heads (M-L, 0.40--0.75) maintain instruction awareness throughout generation.}\\
+\mlpimpl{Instruction-encoding neurons (E-L, 0.15--0.70) store instruction patterns and compliance rules across various directive types.}\\
+\circuitimpl{Instruction detection (E) $\rightarrow$ interpretation (M) $\rightarrow$ integration (M-L) $\rightarrow$ enforcement (L-F). Multi-stage instruction processing pipeline.}
+\end{implementationbox}
+
+\begin{ablationbox}
+\textbf{Expected ablation:} Significant degradation in instruction following capability. Major increase in directive violations. Notable loss of format compliance and constraint adherence. Model reverts to default behaviors ignoring explicit instructions. Reduced controllability.
+\end{ablationbox}
+
+\begin{examplebox}
+\exinput{``List exactly 3 items. Use bullet points. Be brief.''}\\
+\exbehavior{Parse multiple instructions, enforce throughout generation}\\
+\exeffect{• Item one\textbackslash n• Item two\textbackslash n• Item three [stops at 3, uses bullets, stays brief]}
+\end{examplebox}
+
+\mechfooter{\statuswell}{format-enforcement, task-routing}
+
+%-----------------------------------------------------------------------------
+\subsubsection{Output Polishing}
+\label{mech:output-polishing}
+
+\noindent\depthinfo{0.85--0.98} | \primaryimpl{Attention heads} | \litnames{final refinement, quality control, presentation polish}
+
+\begin{functiondesc}
+Perform final refinement and quality control on generated content. Check grammatical correctness, punctuation, capitalization. Ensure formatting consistency and professional presentation. Verify structural integrity of formatted outputs. Apply final stylistic touches. Catch and correct obvious errors before output. Implement last-stage quality assurance. Enhance readability and presentation without changing semantic content.
+\end{functiondesc}
+
+\begin{implementationbox}
+\attnimpl{Polishing heads (F, 0.85--0.98) attend to generated content and apply final corrections. Operate in final layers before output projection.}\\
+\circuitimpl{Final-stage verification: grammar check $\rightarrow$ format verification $\rightarrow$ presentation refinement $\rightarrow$ output projection.}
+\end{implementationbox}
+
+\begin{ablationbox}
+\textbf{Expected ablation:} Moderate increase in minor errors: typos, punctuation mistakes, formatting inconsistencies. Notable degradation in output polish and professional presentation. More rough, less refined outputs. Reduced final quality control.
+\end{ablationbox}
+
+\begin{examplebox}
+\exinput{[Generated text with minor formatting inconsistency]}\\
+\exbehavior{Detect inconsistency in final layers, apply correction}\\
+\exeffect{Consistent formatting in final output}
+\end{examplebox}
+
+\mechfooter{\statusobs}{format-enforcement, completion-control}

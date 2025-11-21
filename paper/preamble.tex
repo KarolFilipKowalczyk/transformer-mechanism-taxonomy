@@ -1,0 +1,255 @@
+%=============================================================================
+% PREAMBLE.TEX - Packages, Macros, and Formatting
+% For: Attention Heads, MLPs, and Circuits: A Naming Convention for 
+%      Transformer Mechanisms
+%=============================================================================
+
+%-----------------------------------------------------------------------------
+% Core Packages
+%-----------------------------------------------------------------------------
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+
+%-----------------------------------------------------------------------------
+% Page Layout
+%-----------------------------------------------------------------------------
+\usepackage[margin=1in]{geometry}
+\usepackage{setspace}
+\onehalfspacing
+
+%-----------------------------------------------------------------------------
+% Mathematics
+%-----------------------------------------------------------------------------
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+
+%-----------------------------------------------------------------------------
+% Tables and Figures
+%-----------------------------------------------------------------------------
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{svg}
+
+%-----------------------------------------------------------------------------
+% Colors and Styling
+%-----------------------------------------------------------------------------
+\usepackage{xcolor}
+\definecolor{darkblue}{rgb}{0.0, 0.0, 0.5}
+\definecolor{darkgreen}{rgb}{0.0, 0.5, 0.0}
+\definecolor{darkred}{rgb}{0.5, 0.0, 0.0}
+
+%-----------------------------------------------------------------------------
+% Hyperlinks and References
+%-----------------------------------------------------------------------------
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=darkblue,
+    citecolor=darkgreen,
+    urlcolor=darkblue,
+    bookmarksnumbered=true,
+    pdfborder={0 0 0}
+}
+\usepackage{cleveref}
+
+%-----------------------------------------------------------------------------
+% Lists and Enumeration
+%-----------------------------------------------------------------------------
+\usepackage{enumitem}
+\setlist{itemsep=0.1em, parsep=0.1em, topsep=0.3em}
+
+%-----------------------------------------------------------------------------
+% Boxes and Styling - Load tcolorbox package FIRST
+%-----------------------------------------------------------------------------
+\usepackage{tcolorbox}
+\tcbuselibrary{skins,breakable}
+
+%-----------------------------------------------------------------------------
+% Section Formatting
+%-----------------------------------------------------------------------------
+\usepackage{titlesec}
+\titlespacing*{\section}{0pt}{1.5em}{0.8em}
+\titlespacing*{\subsection}{0pt}{1.0em}{0.5em}
+\titlespacing*{\subsubsection}{0pt}{1em}{0.3em}
+
+%-----------------------------------------------------------------------------
+% Table of Contents
+%-----------------------------------------------------------------------------
+\setcounter{tocdepth}{3}
+\setcounter{secnumdepth}{3}
+\usepackage{tocloft}
+\setlength{\cftbeforesecskip}{2pt}
+\setlength{\cftbeforesubsecskip}{1pt}
+\setlength{\cftbeforesubsubsecskip}{1pt}
+
+%-----------------------------------------------------------------------------
+% Bibliography
+%-----------------------------------------------------------------------------
+\usepackage{natbib}
+\setcitestyle{square,numbers,comma}
+
+%-----------------------------------------------------------------------------
+% Paragraph Formatting
+%-----------------------------------------------------------------------------
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.5em}
+
+%-----------------------------------------------------------------------------
+% Typography Enhancements
+%-----------------------------------------------------------------------------
+\usepackage[protrusion=true,expansion=false]{microtype}
+\usepackage{csquotes}
+\usepackage{xspace}
+
+%=============================================================================
+% CUSTOM COMMANDS AND ENVIRONMENTS FOR MECHANISM ENTRIES
+%=============================================================================
+
+%-----------------------------------------------------------------------------
+% Depth Indicators
+%-----------------------------------------------------------------------------
+\newcommand{\Early}{\textsf{E}}
+\newcommand{\Middle}{\textsf{M}}
+\newcommand{\Late}{\textsf{L}}
+\newcommand{\Final}{\textsf{F}}
+
+%-----------------------------------------------------------------------------
+% Mechanism Entry Formatting
+%-----------------------------------------------------------------------------
+\newcommand{\depthinfo}[1]{\textbf{Depth:} \texttt{#1}}
+\newcommand{\primaryimpl}[1]{\textbf{Primary Implementation:} #1}
+\newcommand{\litnames}[1]{\textbf{Literature names:} \textit{#1}}
+\newcommand{\statuswell}{\textsc{Well-documented}}
+\newcommand{\statusobs}{\textsc{Observed}}
+\newcommand{\statusprop}{\textsc{Proposed}}
+\newcommand{\relatedmechs}[1]{\textbf{Related:} #1}
+\newcommand{\statusinfo}[1]{\textbf{Status:} #1}
+
+% Compact footer: Status | Related
+\newcommand{\mechfooter}[2]{\noindent\statusinfo{#1} | \relatedmechs{#2}}
+
+% Head-specific footer
+\newcommand{\headfooter}[2]{\noindent\statusinfo{#1} | \relatedmechs{#2}}
+
+%-----------------------------------------------------------------------------
+% Implementation Pattern Formatting
+%-----------------------------------------------------------------------------
+\newcommand{\attnimpl}[1]{\textbf{Attention Heads:} #1}
+\newcommand{\mlpimpl}[1]{\textbf{MLP Layers:} #1}
+\newcommand{\circuitimpl}[1]{\textbf{Circuit:} #1}
+\newcommand{\saeimpl}[1]{\textbf{SAE Features:} #1}
+\newcommand{\archimpl}[1]{\textbf{Architecture:} #1}
+
+%-----------------------------------------------------------------------------
+% Example Scenario Formatting
+%-----------------------------------------------------------------------------
+\newcommand{\exinput}[1]{\textit{Input:} #1}
+\newcommand{\exmechanism}[1]{\textit{Mechanism:} #1}
+\newcommand{\exeffect}[1]{\textit{Effect:} #1}
+\newcommand{\exbehavior}[1]{\textit{Behavior:} #1}
+
+% Attention Pattern Formatting
+\newcommand{\attstrong}[1]{\textbf{Strong:} #1}
+\newcommand{\attweak}[1]{\textbf{Weak:} #1}
+\newcommand{\attreacts}[1]{\textbf{Reacts to:} #1}
+
+%-----------------------------------------------------------------------------
+% Style Guide Compliance Helpers
+%-----------------------------------------------------------------------------
+\newcommand{\eg}{e.g.,\xspace}
+\newcommand{\ie}{i.e.,\xspace}
+\newcommand{\etc}{etc.\xspace}
+
+%-----------------------------------------------------------------------------
+% Custom Environments for Mechanism Entries
+%-----------------------------------------------------------------------------
+
+% Function Description
+\newenvironment{functiondesc}{%
+    \par\vspace{0.3em}%
+    \noindent%
+}{\par\vspace{0.3em}}
+
+% Mechanism Description
+\newenvironment{mechanismdesc}{%
+    \par\vspace{0.3em}%
+    \noindent%
+}{\par\vspace{0.3em}}
+
+% Attention Pattern Box
+\newtcolorbox{attentionbox}{
+    colback=blue!3,
+    colframe=blue!30,
+    boxrule=0.5pt,
+    arc=2pt,
+    left=3pt,
+    right=3pt,
+    top=2pt,
+    bottom=2pt,
+    boxsep=0pt,
+    before skip=0.5em,
+    after skip=0.5em
+}
+
+% Implementation Box
+\newtcolorbox{implementationbox}{
+    colback=gray!5,
+    colframe=gray!40,
+    boxrule=0.5pt,
+    arc=2pt,
+    left=3pt,
+    right=3pt,
+    top=2pt,
+    bottom=2pt,
+    boxsep=0pt,
+    before skip=0.5em,
+    after skip=0.5em
+}
+
+% Example Box
+\newtcolorbox{examplebox}{
+    colback=gray!8,
+    colframe=gray!50,
+    boxrule=0.5pt,
+    arc=2pt,
+    left=4pt,
+    right=4pt,
+    top=3pt,
+    bottom=3pt,
+    boxsep=0pt,
+    before skip=0.5em,
+    after skip=0.5em,
+    fonttitle=\small\bfseries,
+    title=Example
+}
+
+% Ablation Box
+\newtcolorbox{ablationbox}{
+    colback=white,
+    colframe=gray!30,
+    boxrule=0.5pt,
+    arc=2pt,
+    left=3pt,
+    right=3pt,
+    top=2pt,
+    bottom=2pt,
+    boxsep=0pt,
+    before skip=0.5em,
+    after skip=0.5em
+}
+
+%-----------------------------------------------------------------------------
+% Quality Assurance Comments (remove before final compilation)
+%-----------------------------------------------------------------------------
+\newcommand{\TODO}[1]{\textcolor{red}{\textbf{TODO:} #1}}
+\newcommand{\FIXME}[1]{\textcolor{red}{\textbf{FIXME:} #1}}
+\newcommand{\CHECKSTYLE}[1]{\textcolor{blue}{\textbf{STYLE:} #1}}
+
+%-----------------------------------------------------------------------------
+% End of Preamble
+%-----------------------------------------------------------------------------

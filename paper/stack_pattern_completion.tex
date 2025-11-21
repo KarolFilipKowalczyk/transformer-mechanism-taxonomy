@@ -1,0 +1,142 @@
+%=============================================================================
+\subsection{Pattern Completion Stack}
+\label{sec:pattern-stack}
+
+\textbf{Stack overview:} Detect and complete patterns from context. Enable in-context learning through pattern matching and repetition detection. Support sequence continuation and algorithmic behavior.
+
+%-----------------------------------------------------------------------------
+\subsubsection{Induction}
+\label{mech:induction}
+
+\noindent\depthinfo{0.25--0.55} | \primaryimpl{Attention heads + MLP neurons} | \litnames{induction mechanism, pattern completion, in-context learning}
+
+\begin{functiondesc}
+Detect and complete patterns of form [A][B]...[A] $\rightarrow$ predict [B]. Core mechanism for in-context learning and few-shot adaptation. Requires multi-component implementation: previous-token heads create shifted representations, induction heads match patterns via attention, MLP neurons store common bigrams. Enables pattern-based prediction without parameter updates.
+\end{functiondesc}
+
+\begin{implementationbox}
+\attnimpl{Previous-token heads (E, 0.05--0.20) attend to position $i-1$ with uniform offset pattern. Induction heads (M, 0.25--0.55) attend to previous occurrences of current token content.}\\
+\mlpimpl{N-gram storage neurons (E-M, 0.15--0.55) store frequent bigram and trigram patterns as key-value associations.}\\
+\circuitimpl{Previous-token $\rightarrow$ Induction $\rightarrow$ MLP retrieval working in composition across 3--8 layers.}
+\end{implementationbox}
+
+\begin{ablationbox}
+\textbf{Expected ablation:} Severe loss of in-context learning capability. Major degradation on few-shot tasks. Loss of pattern completion and sequence continuation. Reduced ability to learn from examples in prompt.
+\end{ablationbox}
+
+\begin{examplebox}
+\exinput{``When Mary and John went to the store, Mary gave milk to John. When Susan and Bob went to the store, Susan gave milk to...''}\\
+\exbehavior{Detect pattern: [A] gave milk to [B] $\rightarrow$ predict [B]}\\
+\exeffect{Output ``Bob'' by analogical pattern matching}
+\end{examplebox}
+
+\mechfooter{\statuswell}{duplicate-token, bigram-continuation, algorithmic-continuation}
+
+%-----------------------------------------------------------------------------
+\subsubsection{Duplicate Token Detection}
+\label{mech:duplicate-token}
+
+\noindent\depthinfo{0.30--0.58} | \primaryimpl{Attention heads} | \litnames{duplicate detection, repetition detection, token matching}
+
+\begin{functiondesc}
+Detect and track repeated tokens or entities across arbitrary distances. Distinguish first occurrence from subsequent mentions. Support induction mechanism by identifying repeated elements. Enable token-level pattern recognition independent of content. Component of multiple circuits including IOI (indirect object identification) and entity tracking.
+\end{functiondesc}
+
+\begin{implementationbox}
+\attnimpl{Duplicate-token heads (M, 0.30--0.58) perform exact token identity matching, attending from repeated token to its first occurrence.}\\
+\circuitimpl{Feeds into induction heads, S-inhibition heads, and name-mover heads as repetition signal.}
+\end{implementationbox}
+
+\begin{ablationbox}
+\textbf{Expected ablation:} Moderate degradation in pattern matching and entity tracking. Notable loss on tasks requiring repetition detection. Reduced support for induction mechanism and entity circuits.
+\end{ablationbox}
+
+\begin{examplebox}
+\exinput{``The cat sat on the mat. The cat...''}\\
+\exbehavior{Second ``cat'' detects first ``cat'' as duplicate}\\
+\exeffect{Signal repetition for downstream processing}
+\end{examplebox}
+
+\mechfooter{\statuswell}{induction, entity-tracking, S-inhibition}
+
+%-----------------------------------------------------------------------------
+\subsubsection{Bigram Continuation}
+\label{mech:bigram}
+
+\noindent\depthinfo{0.15--0.52} | \primaryimpl{MLP neurons + Attention heads} | \litnames{n-gram prediction, statistical continuation, phrase completion}
+
+\begin{functiondesc}
+Continue common bigram and n-gram patterns using statistical knowledge from training. Predict next token based on immediate local context (1--3 tokens). Implement fast, parameter-based pattern matching for frequent sequences. Enable fluent continuation of idioms, common phrases, and formulaic expressions. Complement induction with statistical frequency information.
+\end{functiondesc}
+
+\begin{implementationbox}
+\mlpimpl{N-gram storage neurons (E-M, 0.15--0.52) encode frequent sequences. First sublayer: detect n-1 token context (key). Second sublayer: provide continuation options (value).}\\
+\attnimpl{N-gram heads (M, 0.28--0.52) attend to matching contexts to retrieve stored patterns.}
+\end{implementationbox}
+
+\begin{ablationbox}
+\textbf{Expected ablation:} Moderate loss of fluent continuation for common phrases. Noticeable degradation on completion of idioms and formulaic expressions. Reduced statistical coherence in generation. Increased reliance on attention-based pattern matching.
+\end{ablationbox}
+
+\begin{examplebox}
+\exinput{``Once upon a...''}\\
+\exbehavior{Match ``once upon a'' bigram pattern, retrieve high-frequency continuation}\\
+\exeffect{Output ``time'' as statistically likely completion}
+\end{examplebox}
+
+\mechfooter{\statusobs}{induction, algorithmic-continuation}
+
+%-----------------------------------------------------------------------------
+\subsubsection{Algorithmic Continuation}
+\label{mech:algorithmic}
+
+\noindent\depthinfo{0.35--0.65} | \primaryimpl{Attention heads + MLP neurons} | \litnames{sequence continuation, rule following, mathematical pattern completion}
+
+\begin{functiondesc}
+Continue algorithmic sequences by detecting underlying rules: counting, arithmetic progressions, alphabetic sequences, mathematical patterns. Extract systematic rules from examples and apply consistently. Support mathematical and logical pattern completion beyond simple memorization. Enable rule-based generation without explicit instruction. Integration point between pattern matching and reasoning mechanisms.
+\end{functiondesc}
+
+\begin{implementationbox}
+\attnimpl{Algorithmic heads (M, 0.35--0.60) detect regular patterns and systematic relationships in sequences.}\\
+\mlpimpl{Rule storage neurons (M, 0.40--0.65) encode mathematical operations and sequence transformation rules.}\\
+\circuitimpl{Integrates with reasoning mechanisms (M-L) for complex rule application.}
+\end{implementationbox}
+
+\begin{ablationbox}
+\textbf{Expected ablation:} Significant loss of algorithmic continuation ability. Major degradation on sequence completion tasks. Reduced performance on mathematical and logical patterns. Loss of systematic rule application.
+\end{ablationbox}
+
+\begin{examplebox}
+\exinput{``2, 4, 8, 16, 32, ...''}\\
+\exbehavior{Detect doubling pattern, apply rule systematically}\\
+\exeffect{Output ``64'' (next power of 2)}
+\end{examplebox}
+
+\mechfooter{\statusobs}{induction, reasoning-integration}
+
+%-----------------------------------------------------------------------------
+\subsubsection{Position-Based Copying}
+\label{mech:position-copy}
+
+\noindent\depthinfo{0.05--0.25} | \primaryimpl{Attention heads} | \litnames{previous-token attention, offset attention, adjacent copying}
+
+\begin{functiondesc}
+Create positionally-shifted representations by attending to fixed offsets (typically position $i-1$). Foundational primitive enabling bigram processing and pattern detection. Implement constant offset attention independent of content. Enable MLPs to process adjacent token pairs as input. Essential building block for induction and other pattern-based mechanisms.
+\end{functiondesc}
+
+\begin{implementationbox}
+\attnimpl{Previous-token heads (E, 0.05--0.20) implement nearly uniform attention to position $i-1$ from position $i$. Content-independent, purely positional pattern.}\\
+\circuitimpl{First stage of induction circuit and many pattern-matching circuits.}
+\end{implementationbox}
+
+\begin{ablationbox}
+\textbf{Expected ablation:} Significant degradation in pattern completion and local context processing. Loss of bigram processing capability. Severe accuracy drop on induction tasks. Reduced ability to continue sequences requiring adjacent token information.
+\end{ablationbox}
+
+\begin{examplebox}
+\exinput{``...A B C D E F A B C D E F A B...''}\\
+\exbehavior{Each position uniformly attends to previous position}\\
+\exeffect{Create shifted representations enabling pattern detection by downstream mechanisms}
+\end{examplebox}
+
+\mechfooter{\statuswell}{induction, bigram-continuation, duplicate-token}

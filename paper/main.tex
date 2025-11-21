@@ -1,0 +1,192 @@
+\documentclass[11pt,a4paper]{article}
+
+% Load preamble with packages and macros
+\input{preamble}
+
+% Document metadata
+\title{Attention Heads, MLPs, and Circuits: \\ A Naming Convention for Transformer Mechanisms}
+\author{Karol Kowalczyk}
+\date{November 2025}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+Transformer models implement computation through three levels of organization: attention heads route information, MLP layers store and transform features, and multi-component circuits integrate these primitives into complex behaviors. Mechanistic interpretability research has identified numerous mechanisms---induction, factual recall, coreference resolution, safety enforcement---but naming remains inconsistent. The same mechanism appears under different names; the same name refers to different mechanisms; descriptions conflate what a mechanism computes with which components implement it.
+
+I propose a mechanism-first naming convention: describe the computational transformation independently, then specify which components (attention heads, MLPs, circuits, sparse autoencoder features, or architectural elements) implement it. This taxonomy organizes mechanisms into nine functional stacks: Pattern Completion, Memory Recall, Information Routing, Feature Transformation, Composition, Safety Control, Output Generation, Reasoning, and Infrastructure. Each mechanism entry specifies primary implementation, behavioral signatures, ablation effects, and component-level details. This framework unifies attention head, MLP, and circuit perspectives under consistent terminology.
+\end{abstract}
+
+\tableofcontents
+\clearpage
+
+%=============================================================================
+% MAIN CONTENT
+%=============================================================================
+
+\section{Introduction}
+\label{sec:introduction}
+
+\subsection{Motivation}
+
+Transformers achieve remarkable performance through layered computation: attention heads route information selectively, MLP layers store knowledge and transform features, and circuits combine these primitives across depths. Mechanistic interpretability research seeks to reverse-engineer these computations into human-understandable mechanisms~\cite{elhage2021mathematical,olsson2022context,wang2022interpretability}.
+
+Research has identified specialized mechanisms: induction heads implement pattern completion~\cite{olsson2022context}, MLP layers function as key-value memories~\cite{geva2021transformer}, the IOI circuit performs indirect object identification through 26 attention heads~\cite{wang2022interpretability}, and sparse autoencoders extract monosemantic features from superposed representations~\cite{bricken2023towards}. Yet naming remains fragmented. The same mechanism appears as ``induction head,'' ``pattern head,'' ``copy head,'' and ``ICL head.'' Different mechanisms share names: ``copy head'' refers to both induction and name-mover behaviors. Descriptions conflate mechanism (what is computed) with component (how it is implemented).
+
+\subsection{The Problem: Component-First Thinking}
+
+Current naming conventions organize by component type: attention head taxonomies~\cite{zheng2025attention}, MLP neuron studies~\cite{geva2021transformer,dai2022knowledge}, circuit analyses~\cite{wang2022interpretability}. This component-first approach creates three problems. First, the same computational function appears under different names when implemented differently. Second, component-specific vocabularies prevent cross-component integration. Third, circuit-level understanding remains disconnected from component-level descriptions.
+
+\subsection{The Solution: Mechanism-First Naming}
+
+I propose mechanism-first organization: describe what is computed, then specify which components implement it. Each mechanism entry includes: (1) computational transformation (component-agnostic), (2) primary implementation (attention heads, MLPs, circuits, SAE features, or architecture), (3) component-specific details (attention patterns, MLP structure, circuit composition), (4) behavioral signatures (observable effects), and (5) ablation patterns (what breaks when removed).
+
+This framework accommodates multiple implementation modes. Pattern completion combines attention heads (previous-token, induction) with MLP neurons (n-gram storage). Factual recall integrates entity heads (query identification), MLP neurons (knowledge storage), and name-mover heads (output routing). Safety enforcement requires multi-stage circuits (detection, policy, refusal) spanning early to final layers.
+
+\subsection{Scope and Limitations}
+
+This taxonomy focuses on well-documented mechanisms with empirical support. It describes current understanding while remaining flexible for future discoveries. The taxonomy acknowledges three key limitations: (1) mechanisms are polyfunctional---components contribute to multiple computations, (2) implementation varies across architectures---GPT, LLaMA, and Claude show mechanistic similarities but architectural differences, and (3) understanding is incomplete---many MLP functions and circuit interactions remain poorly understood.
+
+\subsection{Contributions}
+
+This work provides: (1) mechanism-first taxonomy organizing transformer computation into nine functional stacks, (2) standardized naming bridging attention head, MLP, and circuit perspectives, (3) implementation specifications detailing how different components realize each mechanism, (4) cross-reference tables mapping literature terms to canonical mechanism names, and (5) empirically grounded descriptions synthesizing interpretability research.
+
+\subsection{Document Structure}
+
+Section~\ref{sec:background} reviews mechanistic interpretability and component types. Section~\ref{sec:methodology} explains mechanism identification methods. Section~\ref{sec:depth} introduces the depth model. Sections~\ref{sec:pattern-stack} through~\ref{sec:infrastructure-stack} catalog mechanisms by functional stack. Section~\ref{sec:discussion} analyzes cross-stack patterns and limitations. Section~\ref{sec:conclusion} concludes with future directions.
+
+%=============================================================================
+\section{Background}
+\label{sec:background}
+
+\subsection{Transformer Architecture}
+
+Transformers~\cite{vaswani2017attention} process sequences through alternating attention and MLP layers. Each layer reads from and writes to a residual stream via additive contributions. Attention heads route information using learned query-key-value patterns. MLP layers transform features through expansion ($d \to 4d$), nonlinear activation, and contraction ($4d \to d$). Layer normalization stabilizes activations. Residual connections enable gradient flow through depth.
+
+\subsection{Three Levels of Organization}
+
+Transformer computation operates at three levels. \textbf{Attention heads} implement specialized routing patterns: previous-token heads create shifted representations, induction heads match patterns, name-mover heads copy entities to output positions~\cite{elhage2021mathematical,olsson2022context}. \textbf{MLP layers} store knowledge as key-value memories~\cite{geva2021transformer,geva2023dissecting}: first-layer weights detect patterns (keys), second-layer weights provide associations (values). Knowledge neurons encode specific facts~\cite{dai2022knowledge,meng2022locating}. \textbf{Circuits} combine attention and MLP across layers: the IOI circuit uses duplicate-token heads, S-inhibition heads, name-mover heads, and MLPs to resolve indirect objects~\cite{wang2022interpretability}.
+
+\subsection{Sparse Autoencoders and Superposition}
+
+Neurons exhibit polysemanticity: single neurons respond to multiple unrelated concepts~\cite{elhage2022toy}. Superposition enables models to represent more features than available dimensions by encoding features as sparse linear combinations~\cite{elhage2022toy}. Sparse autoencoders (SAEs) extract monosemantic features by learning overcomplete sparse bases (10--100$\times$ model dimensions)~\cite{bricken2023towards,cunningham2023sparse}. SAE features enable fine-grained interpretability but do not automatically explain feature interactions.
+
+\subsection{Why Naming Matters}
+
+Inconsistent naming hinders communication, replication, and integration. Researchers describe the same mechanism differently: ``induction head'' vs. ``pattern head'' vs. ``ICL head.'' Different mechanisms share names: ``copy head'' refers to induction, name-mover, and duplicate-token behaviors. Circuit studies reference components by position rather than function. This taxonomy provides stable vocabulary spanning attention heads, MLPs, and circuits.
+
+%=============================================================================
+\section{Methodology}
+\label{sec:methodology}
+
+\subsection{Mechanism Identification}
+
+Mechanisms are identified through converging evidence: (1) \textbf{Attention pattern analysis} reveals specialized routing (diagonal for previous-token, content-based for induction)~\cite{elhage2021mathematical}, (2) \textbf{Ablation studies} show behavioral changes when components removed~\cite{wang2022interpretability}, (3) \textbf{Activation patching} traces information flow through specific paths~\cite{wang2022interpretability}, (4) \textbf{Logit attribution} identifies components contributing to predictions~\cite{nostalgebraist2020interpreting}, and (5) \textbf{SAE feature analysis} extracts interpretable concepts~\cite{bricken2023towards}.
+
+\subsection{Mechanism vs. Component}
+
+This taxonomy distinguishes mechanism (computational transformation) from component (implementation substrate). The induction mechanism detects [A][B]...[A] patterns and predicts [B]. This mechanism is implemented by: previous-token heads (create shifted representations), induction heads (match patterns via attention), and MLP neurons (store common bigrams). Separating mechanism from implementation enables cross-architecture comparison and multi-component integration.
+
+\subsection{Inclusion Criteria}
+
+Mechanisms are included when: (1) independently observed across multiple models, (2) behaviorally validated through ablations, (3) mechanistically understood at component level, and (4) reproducible using standard interpretability techniques. Proposed mechanisms lacking empirical support are marked clearly.
+
+%=============================================================================
+\section{Depth Model}
+\label{sec:depth}
+
+\subsection{Four-Level Depth Organization}
+
+Mechanisms concentrate at predictable depths~\cite{elhage2021mathematical,wang2022interpretability}: \textbf{Early (E, 0.00--0.25)} layers process surface features---delimiters, local patterns, content detection. \textbf{Middle (M, 0.25--0.70)} layers implement core computation---induction, factual recall, reasoning. \textbf{Late (L, 0.70--0.88)} layers perform integration---entity movement, topic routing, strategy planning. \textbf{Final (F, 0.88--1.00)} layers enforce constraints---safety, formatting, completion control.
+
+\subsection{Relative Depth}
+
+Depth is expressed as fraction of total layers for architecture-independent comparison. A mechanism at relative depth 0.40 occupies similar functional space in 12-layer and 96-layer models. This enables cross-model generalization while acknowledging depth-specific variations.
+
+\subsection{Depth Boundaries}
+
+Depth categories have defined boundaries but mechanisms may span ranges. MLP knowledge storage operates at all depths with hierarchical specialization: early layers store syntax, middle layers store facts, late layers store semantic concepts~\cite{geva2023dissecting}. Sparse autoencoder features span depths with varying abstraction levels~\cite{bricken2023towards}.
+
+%=============================================================================
+% MECHANISM STACKS
+%=============================================================================
+
+\section{Mechanism Catalog}
+\label{sec:catalog}
+
+This section catalogs mechanisms by functional stack. Each entry specifies: mechanism description (what is computed), primary implementation (which components), implementation details (how components realize it), ablation effects (what breaks), and examples (input$\to$mechanism$\to$output).
+
+% Individual stack files
+\input{stack_pattern_completion}
+\input{stack_memory_recall}
+\input{stack_information_routing}
+\input{stack_feature_transformation}
+\input{stack_reasoning}
+\input{stack_safety}
+\input{stack_output_generation}
+\input{stack_composition}
+\input{stack_infrastructure}
+
+%=============================================================================
+\section{Discussion}
+\label{sec:discussion}
+
+\subsection{Component Specialization}
+
+Clear patterns emerge across implementations. Attention heads excel at routing: identifying where information resides, moving it to output positions, suppressing alternatives. MLPs excel at storage and transformation: encoding factual associations, performing nonlinear feature compositions, storing reasoning heuristics. Circuits integrate across components: attention routes, MLPs transform, attention outputs, in coordinated sequences spanning 5--30 layers.
+
+\subsection{Multi-Component Mechanisms}
+
+Most mechanisms require multiple component types. Pattern completion combines previous-token heads (E), induction heads (M), and MLP bigram storage. Factual recall integrates entity heads (M), MLP knowledge neurons (M-L), and name-mover heads (L). Safety enforcement cascades through detection heads (E), policy heads (L), MLP modulation, and refusal heads (F). Single-component mechanisms are rare; even ``pure'' attention mechanisms like previous-token rely on MLP contextual support.
+
+\subsection{Superposition and SAE Features}
+
+Sparse autoencoders reveal hidden computational structure~\cite{bricken2023towards,cunningham2023sparse}. SAE features disentangle polysemantic neurons into monosemantic concepts, enabling fine-grained attribution. However, SAEs do not automatically explain feature interactions or circuit-level composition. Bridging SAE features to circuit understanding remains an open challenge.
+
+\subsection{Architectural Variations}
+
+Mechanisms generalize across architectures but implementations vary. GPT models emphasize certain reasoning patterns, LLaMA models show strong instruction-following mechanisms, safety-tuned models have pronounced refusal circuits~\cite{arditi2024refusal}. Alternative architectures (Mamba, RWKV) may implement similar mechanisms through different substrates.
+
+\subsection{Polyfunctionality and Context-Dependence}
+
+Components serve multiple functions. Induction heads support pattern completion, entity tracking, and algorithmic continuation. MLP neurons contribute to multiple facts. Attention heads participate in several circuits. Function selection depends on context: residual stream state, adjacent component activations, and task requirements. This polyfunctionality complicates attribution but enables efficient computation.
+
+\subsection{Limitations}
+
+This taxonomy has five key limitations. First, \textbf{incomplete coverage}: many MLP functions, circuit interactions, and feature compositions remain poorly understood. Second, \textbf{empirical gaps}: some mechanisms are proposed based on limited evidence. Third, \textbf{architecture dependence}: mechanisms may not transfer to radically different architectures. Fourth, \textbf{single-level descriptions}: entries describe primary function but components contribute to multiple mechanisms. Fifth, \textbf{static snapshots}: understanding evolves as interpretability techniques improve.
+
+%=============================================================================
+\section{Conclusion}
+\label{sec:conclusion}
+
+\subsection{Summary}
+
+This work introduces mechanism-first naming for transformer computation: nine functional stacks (Pattern Completion, Memory Recall, Information Routing, Feature Transformation, Composition, Safety Control, Output Generation, Reasoning, Infrastructure), standardized descriptions separating mechanism from implementation, cross-component integration spanning attention heads, MLPs, and circuits, and empirically grounded specifications with ablation effects and behavioral signatures.
+
+\subsection{Adoption Guidelines}
+
+Researchers should use mechanism names in papers, specify primary implementation (attention heads, MLPs, circuits), include depth ranges when reporting findings, and provide cross-references to literature terms. Example: ``I identified the factual recall mechanism (entity heads + MLP knowledge neurons + name-mover heads) operating at depths 0.35--0.80.''
+
+\subsection{Future Directions}
+
+Open questions include: (1) \textbf{Complete MLP functional taxonomy}: systematic characterization of MLP computation beyond key-value memory, (2) \textbf{Circuit composition rules}: principles governing how attention and MLP combine into larger computations, (3) \textbf{SAE-circuit bridging}: connecting monosemantic features to multi-component circuits, (4) \textbf{Automated mechanism detection}: tools for identifying mechanisms in new models, (5) \textbf{Cross-architecture generalization}: mechanism transfer to alternative architectures, and (6) \textbf{Dynamic mechanism analysis}: how mechanisms activate conditionally based on context.
+
+This naming convention facilitates communication, enables systematic comparison, and provides organizational structure for expanding mechanistic understanding.
+
+%=============================================================================
+% APPENDICES
+%=============================================================================
+\clearpage
+\appendix
+
+% \input{appendix}
+
+%=============================================================================
+% BIBLIOGRAPHY
+%=============================================================================
+\clearpage
+\bibliographystyle{plainnat}
+\bibliography{bibliography}
+
+\end{document}

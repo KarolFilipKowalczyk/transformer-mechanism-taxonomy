@@ -1,0 +1,169 @@
+%=============================================================================
+\subsection{Composition Stack}
+\label{sec:composition-stack}
+
+\textbf{Stack overview:} Combine multiple mechanisms into integrated behaviors. Enable cross-layer coordination, multi-component circuits, and emergent capabilities from mechanism interaction.
+
+%-----------------------------------------------------------------------------
+\subsubsection{Attention-MLP Composition}
+\label{mech:attention-mlp-composition}
+
+\noindent\depthinfo{All layers} | \primaryimpl{Architectural pattern} | \litnames{interleaved processing, residual composition, layer coordination}
+
+\begin{functiondesc}
+Coordinate attention and MLP mechanisms through residual stream composition. Attention routes information, MLP transforms it, next attention routes transformed features. Enable information to flow through alternating routing and transformation stages. Support incremental refinement: each layer adds to residual stream. Allow mechanisms to build on previous computations without overwriting. Implement universal approximation through composed operations. Core architectural pattern enabling complex computation from simple primitives.
+\end{functiondesc}
+
+\begin{implementationbox}
+\archimpl{Fundamental transformer architecture: $h_{l+1} = h_l + \text{Attn}(h_l) + \text{MLP}(\text{Attn}(h_l) + h_l)$ where residual connections enable composition. Each layer adds incremental contribution.}\\
+\circuitimpl{Universal pattern across all layers. Attention provides routing, MLP provides transformation, residual stream accumulates contributions. Enables arbitrarily complex computation through depth.}
+\end{implementationbox}
+
+\begin{ablationbox}
+\textbf{Expected ablation:} Catastrophic failure. Without residual composition, model cannot function. Loss of information flow between layers. Each layer would overwrite previous computation. Fundamental to transformer operation.
+\end{ablationbox}
+
+\begin{examplebox}
+\exinput{Complex query requiring multiple processing stages}\\
+\exbehavior{Layer 1 routes, Layer 2 transforms, Layer 3 routes transformed features, etc.}\\
+\exeffect{Progressive refinement through composed attention and MLP operations}
+\end{examplebox}
+
+\mechfooter{\statuswell}{residual-connections, layernorm}
+
+%-----------------------------------------------------------------------------
+\subsubsection{Multi-Head Composition}
+\label{mech:multi-head-composition}
+
+\noindent\depthinfo{All layers} | \primaryimpl{Architectural pattern} | \litnames{parallel processing, multi-aspect attention, head coordination}
+
+\begin{functiondesc}
+Enable parallel processing of multiple attention patterns within single layer. Allow different heads to focus on different relationships simultaneously: one head tracks entities, another tracks syntax, another handles facts. Combine multiple attention perspectives into unified representation. Support specialized head functions operating in parallel. Enable rich, multi-faceted information routing. Aggregate head contributions through linear combination. Provide computational flexibility within layers.
+\end{functiondesc}
+
+\begin{implementationbox}
+\archimpl{Each attention layer contains multiple heads (8--64 depending on model). Each head independently computes attention: $\text{head}_i = \text{Attn}(Q_i, K_i, V_i)$. Outputs concatenated and projected: $\text{MultiHead} = \text{Proj}([\text{head}_1; \ldots; \text{head}_h])$.}\\
+\circuitimpl{Parallel execution of diverse attention patterns. Heads specialize in different functions but contribute to shared residual stream.}
+\end{implementationbox}
+
+\begin{ablationbox}
+\textbf{Expected ablation:} Severe capability reduction. Model loses parallel processing power and specialization. Single attention pattern cannot handle multiple relationship types simultaneously. Major degradation across all tasks requiring multi-faceted attention.
+\end{ablationbox}
+
+\begin{examplebox}
+\exinput{``Alice told Bob about Paris while discussing travel''}\\
+\exbehavior{Head 1: track entities; Head 2: extract facts; Head 3: maintain discourse; parallel execution}\\
+\exeffect{Simultaneous processing of multiple relationships}
+\end{examplebox}
+
+\mechfooter{\statuswell}{attention-mlp-composition, information-routing}
+
+%-----------------------------------------------------------------------------
+\subsubsection{Cross-Layer Circuits}
+\label{mech:cross-layer-circuits}
+
+\noindent\depthinfo{Spans multiple layers} | \primaryimpl{Multi-layer circuits} | \litnames{circuit composition, pipeline processing, staged computation}
+
+\begin{functiondesc}
+Implement complex behaviors through coordinated multi-layer computation pipelines. Compose specialized mechanisms across 5--30 layers into integrated circuits. Enable staged processing: early layers detect patterns, middle layers retrieve knowledge, late layers route to output. Support mechanism specialization by depth: each layer contributes specific computational step. Implement circuit motifs: induction (previous-token $\rightarrow$ induction), IOI (duplicate-token $\rightarrow$ S-inhibition $\rightarrow$ name-mover), factual recall (entity $\rightarrow$ MLP retrieval $\rightarrow$ output routing).
+\end{functiondesc}
+
+\begin{implementationbox}
+\circuitimpl{Documented circuits: Induction (3--8 layers), IOI (8--12 layers), Factual recall (5--15 layers). General pattern: detection/preparation (E) $\rightarrow$ core computation (M) $\rightarrow$ integration (L) $\rightarrow$ output (L-F).}\\
+\attnimpl{Attention heads coordinate information flow across circuit stages. Each stage builds on previous computations.}\\
+\mlpimpl{MLP layers provide transformation and storage within circuits. Often operate in parallel with attention routing.}
+\end{implementationbox}
+
+\begin{ablationbox}
+\textbf{Expected ablation:} Depends on circuit. Induction circuit ablation: severe ICL loss. IOI circuit ablation: major entity routing failure. Factual circuit ablation: significant knowledge retrieval degradation. Circuit-specific rather than universal impact.
+\end{ablationbox}
+
+\begin{examplebox}
+\exinput{``Mary and John went to store. Mary gave book to...'' [IOI circuit]}\\
+\exbehavior{Duplicate-token detects ``Mary'' repeat $\rightarrow$ S-inhibition suppresses ``Mary'' $\rightarrow$ name-mover outputs ``John''}\\
+\exeffect{Correct indirect object through multi-stage circuit}
+\end{examplebox}
+
+\mechfooter{\statuswell}{induction, factual-retrieval, output-routing}
+
+%-----------------------------------------------------------------------------
+\subsubsection{Depth-Based Specialization}
+\label{mech:depth-specialization}
+
+\noindent\depthinfo{Hierarchical across depth} | \primaryimpl{Architectural organization} | \litnames{hierarchical processing, abstraction layers, staged refinement}
+
+\begin{functiondesc}
+Organize computation hierarchically across depth with increasing abstraction. Early layers process surface features: syntax, delimiters, local patterns. Middle layers implement core computation: facts, entities, reasoning, patterns. Late layers perform integration: entity movement, context synthesis, strategy selection. Final layers enforce constraints: safety, formatting, completion. Enable progressive refinement from concrete to abstract. Support hierarchical feature construction and concept building.
+\end{functiondesc}
+
+\begin{implementationbox}
+\archimpl{Consistent depth-based organization: Early (0.00--0.25): surface processing. Middle (0.25--0.70): core computation. Late (0.70--0.88): integration. Final (0.88--1.00): constraint enforcement.}\\
+\circuitimpl{Information flows through abstraction hierarchy. Each depth range contributes specialized processing appropriate to abstraction level. Enables compositional reasoning and hierarchical understanding.}
+\end{implementationbox}
+
+\begin{ablationbox}
+\textbf{Expected ablation:} Layer-dependent. Early layer ablation: surface feature loss. Middle layer ablation: core capability loss. Late layer ablation: integration failure. Final layer ablation: constraint violation. Severity depends on which depth ablated.
+\end{ablationbox}
+
+\begin{examplebox}
+\exinput{Complex query requiring multi-stage processing}\\
+\exbehavior{Early: parse structure; Middle: retrieve facts and reason; Late: integrate and route; Final: format and constrain}\\
+\exeffect{Hierarchical processing through depth stages}
+\end{examplebox}
+
+\mechfooter{\statuswell}{attention-mlp-composition, cross-layer-circuits}
+
+%-----------------------------------------------------------------------------
+\subsubsection{Superposition and Interference}
+\label{mech:superposition}
+
+\noindent\depthinfo{All layers} | \primaryimpl{Representational strategy} | \litnames{feature packing, compressed representation, polysemanticity}
+
+\begin{functiondesc}
+Represent more features than available dimensions through sparse superposed encoding. Pack multiple sparse features into shared neural dimensions. Enable efficient representation: model represents 100K+ features in 4K--8K dimensional space. Individual neurons respond to multiple concepts (polysemanticity). Features stored as sparse linear combinations in activation space. Trade representational efficiency for interference between features. Enable rich representation within dimensional constraints. Extractable through sparse autoencoders into monosemantic features.
+\end{functiondesc}
+
+\begin{implementationbox}
+\mlpimpl{Neurons encode multiple features through superposition. Activation space contains far more features than dimensions. Feature interference managed through sparsity: features rarely co-occur.}\\
+\saeimpl{Sparse autoencoders (10--100$\times$ expansion) extract individual features from superposed representations. Learned overcomplete basis reveals hidden structure.}\\
+\circuitimpl{Fundamental representational strategy enabling rich feature sets within fixed architecture. Explains polysemanticity observations.}
+\end{implementationbox}
+
+\begin{ablationbox}
+\textbf{Expected ablation:} Cannot directly ablate (representational property not mechanism). SAE extraction reveals structure but removing superposition would require architectural change. Fundamental to how transformers achieve capability within dimensional constraints.
+\end{ablationbox}
+
+\begin{examplebox}
+\exinput{[Single neuron responding to multiple unrelated concepts]}\\
+\exbehavior{Neuron participates in representing multiple sparse features through superposition}\\
+\exeffect{Efficient packing of features; polysemantic neuron behavior}
+\end{examplebox}
+
+\mechfooter{\statusobs}{nonlinear-composition, abstract-concepts}
+
+%-----------------------------------------------------------------------------
+\subsubsection{Emergent Capabilities}
+\label{mech:emergent-capabilities}
+
+\noindent\depthinfo{System-level} | \primaryimpl{Interaction effects} | \litnames{emergent behavior, capability emergence, composition effects}
+
+\begin{functiondesc}
+Generate capabilities not explicitly present in individual mechanisms through interaction and composition. Enable complex behaviors from simple primitive combination. Support few-shot learning through induction mechanism composition. Generate reasoning capabilities from pattern matching and knowledge retrieval interaction. Enable strategic planning from multiple mechanism coordination. Produce system-level intelligence exceeding component capabilities. Demonstrate that sophisticated behaviors emerge from sufficient mechanism diversity and composition depth.
+\end{functiondesc}
+
+\begin{implementationbox}
+\circuitimpl{No single implementation; emergent from system. Examples: Chain-of-thought reasoning emerges from pattern completion + factual retrieval + consistency checking. Few-shot learning emerges from induction + entity tracking + output routing. Strategic problem-solving emerges from planning + reasoning + knowledge retrieval.}\\
+\archimpl{Requires sufficient model scale (parameters, depth, width) and mechanism diversity. Emergence threshold varies by capability.}
+\end{implementationbox}
+
+\begin{ablationbox}
+\textbf{Expected ablation:} Capability-dependent. Ablating key mechanisms breaks emergent behaviors they enable. Example: removing induction breaks few-shot learning emergence. Removing consistency checking degrades reasoning emergence. Non-localized ablation effects.
+\end{ablationbox}
+
+\begin{examplebox}
+\exinput{Few-shot learning from 2--3 examples (not explicitly trained)}\\
+\exbehavior{Induction detects pattern + entity tracking maintains context + output routing applies pattern}\\
+\exeffect{Emergent capability: learn from examples without parameter updates}
+\end{examplebox}
+
+\mechfooter{\statusobs}{induction, multi-step-reasoning, cross-layer-circuits}

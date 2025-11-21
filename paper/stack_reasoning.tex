@@ -1,0 +1,172 @@
+%=============================================================================
+\subsection{Reasoning Stack}
+\label{sec:reasoning-stack}
+
+\textbf{Stack overview:} Enable multi-step reasoning, logical inference, and problem-solving. Support chain-of-thought generation, consistency checking, and strategic planning. Bridge pattern matching with symbolic reasoning.
+
+%-----------------------------------------------------------------------------
+\subsubsection{Multi-Step Reasoning}
+\label{mech:multi-step-reasoning}
+
+\noindent\depthinfo{0.50--0.85} | \primaryimpl{MLP neurons + Attention heads} | \litnames{chain-of-thought, sequential reasoning, step-by-step processing}
+
+\begin{functiondesc}
+Perform multi-step logical reasoning by maintaining intermediate conclusions and building toward final answer. Support chain-of-thought generation: explicit intermediate steps improve accuracy. Enable decomposition of complex problems into manageable subproblems. Maintain reasoning state across generation steps. Integrate information from multiple reasoning chains. Support self-correction and backtracking when contradictions detected.
+\end{functiondesc}
+
+\begin{implementationbox}
+\mlpimpl{Reasoning neurons (M-L, 0.50--0.80) encode reasoning heuristics, logical rules, and inference patterns. Store common reasoning templates.}\\
+\attnimpl{Reasoning-integration heads (L, 0.65--0.85) attend to previous reasoning steps and intermediate conclusions to maintain coherent reasoning chains.}\\
+\circuitimpl{Problem decomposition (M) $\rightarrow$ step generation (M-L) $\rightarrow$ integration (L) $\rightarrow$ conclusion formation (L-F). Iterative refinement across multiple generation steps.}
+\end{implementationbox}
+
+\begin{ablationbox}
+\textbf{Expected ablation:} Severe degradation in complex reasoning tasks. Loss of multi-step inference capability. Major accuracy drop on problems requiring intermediate steps. Increased tendency toward direct but incorrect answers. Reduced benefit from chain-of-thought prompting.
+\end{ablationbox}
+
+\begin{examplebox}
+\exinput{``If all A are B, and all B are C, what can we conclude about A and C?''}\\
+\exbehavior{Generate intermediate step: ``A must be B'', then ``B must be C'', conclude transitivity}\\
+\exeffect{Output ``All A are C'' through explicit reasoning chain}
+\end{examplebox}
+
+\mechfooter{\statusobs}{planning, consistency-checking, factual-retrieval}
+
+%-----------------------------------------------------------------------------
+\subsubsection{Planning and Strategy Selection}
+\label{mech:planning}
+
+\noindent\depthinfo{0.60--0.85} | \primaryimpl{Attention heads + MLP neurons} | \litnames{strategic planning, approach selection, method determination}
+
+\begin{functiondesc}
+Select appropriate problem-solving strategies and plan solution approaches. Recognize problem types and activate relevant solution templates. Decide between strategies: analytical vs. intuitive, direct vs. decomposition, forward vs. backward reasoning. Maintain high-level solution plan while generating detailed steps. Enable metacognitive awareness of solution approach. Support strategy switching when initial approach fails.
+\end{functiondesc}
+
+\begin{implementationbox}
+\attnimpl{Strategy-selection heads (L, 0.65--0.80) recognize problem characteristics and bias toward appropriate approaches.}\\
+\mlpimpl{Strategy-encoding neurons (L, 0.60--0.85) store solution templates and problem-solving heuristics for different domains.}\\
+\circuitimpl{Problem classification $\rightarrow$ strategy selection $\rightarrow$ plan execution $\rightarrow$ monitoring. Meta-level control of reasoning process.}
+\end{implementationbox}
+
+\begin{ablationbox}
+\textbf{Expected ablation:} Moderate loss of strategic problem-solving. Suboptimal approach selection. Notable degradation on problems requiring specific methods. Reduced adaptability when strategies need adjustment. More random or default strategy application.
+\end{ablationbox}
+
+\begin{examplebox}
+\exinput{``Optimize this function'' vs. ``Prove this theorem''}\\
+\exbehavior{Route first to numerical/calculus approach, second to logical/proof approach}\\
+\exeffect{Apply appropriate methodology for each problem type}
+\end{examplebox}
+
+\mechfooter{\statusobs}{multi-step-reasoning, task-routing}
+
+%-----------------------------------------------------------------------------
+\subsubsection{Consistency Checking}
+\label{mech:consistency-checking}
+
+\noindent\depthinfo{0.70--0.88} | \primaryimpl{Attention heads} | \litnames{verification, coherence checking, contradiction detection}
+
+\begin{functiondesc}
+Detect inconsistencies, contradictions, and logical errors in generated content. Compare current generation against previous statements for coherence. Check factual claims against retrieved knowledge. Verify logical validity of reasoning steps. Enable self-correction before final output. Support accuracy improvement through internal verification. Identify when revision needed.
+\end{functiondesc}
+
+\begin{implementationbox}
+\attnimpl{Consistency-checking heads (L, 0.70--0.85) attend to potentially contradictory previous content and flag inconsistencies.}\\
+\circuitimpl{Generation $\rightarrow$ consistency check $\rightarrow$ correction/continuation. May trigger regeneration or qualification. Works in late layers before final output.}
+\end{implementationbox}
+
+\begin{ablationbox}
+\textbf{Expected ablation:} Moderate increase in self-contradictions and logical errors. Reduced internal verification. Notable degradation in accuracy on multi-step problems. More frequent generation of mutually inconsistent statements. Loss of self-correction capability.
+\end{ablationbox}
+
+\begin{examplebox}
+\exinput{[Generated: ``X is larger than Y'' earlier, now generating about Y and X]}\\
+\exbehavior{Check compatibility with previous statement before asserting ``Y exceeds X''}\\
+\exeffect{Avoid contradiction or add qualification}
+\end{examplebox}
+
+\mechfooter{\statusobs}{multi-step-reasoning, factual-retrieval}
+
+%-----------------------------------------------------------------------------
+\subsubsection{Analogical Reasoning}
+\label{mech:analogical-reasoning}
+
+\noindent\depthinfo{0.45--0.75} | \primaryimpl{Attention heads + MLP neurons} | \litnames{analogy formation, transfer, mapping}
+
+\begin{functiondesc}
+Recognize structural similarities between different domains and transfer solutions. Map concepts from familiar domain to novel domain. Identify deep analogies beyond surface similarity. Enable transfer learning within context. Support metaphorical understanding and explanation. Build correspondences between source and target domains. Generalize solutions from examples to new cases.
+\end{functiondesc}
+
+\begin{implementationbox}
+\attnimpl{Analogy-detection heads (M-L, 0.45--0.70) identify structural parallels between different contexts.}\\
+\mlpimpl{Abstraction neurons (M-L, 0.50--0.75) encode domain-general patterns enabling transfer. Store analogical mappings.}\\
+\circuitimpl{Pattern abstraction (M) $\rightarrow$ similarity detection (M-L) $\rightarrow$ transfer (L). Connects induction mechanism to reasoning.}
+\end{implementationbox}
+
+\begin{ablationbox}
+\textbf{Expected ablation:} Notable loss of analogical reasoning and transfer capability. Reduced ability to apply solutions from one domain to another. Degradation in understanding metaphors and analogies. More literal, less flexible problem solving.
+\end{ablationbox}
+
+\begin{examplebox}
+\exinput{``Atoms are to molecules as [blank] are to words''}\\
+\exbehavior{Detect structural analogy: composition relationship, transfer from chemistry to linguistics}\\
+\exeffect{Output ``letters'' by analogical mapping}
+\end{examplebox}
+
+\mechfooter{\statusobs}{abstract-concepts, induction, semantic-integration}
+
+%-----------------------------------------------------------------------------
+\subsubsection{Mathematical Reasoning}
+\label{mech:mathematical-reasoning}
+
+\noindent\depthinfo{0.40--0.75} | \primaryimpl{MLP neurons + Attention heads} | \litnames{arithmetic, symbolic math, quantitative reasoning}
+
+\begin{functiondesc}
+Perform mathematical operations and quantitative reasoning. Execute arithmetic: addition, subtraction, multiplication, division. Handle symbolic mathematical manipulation. Understand mathematical concepts: equations, inequalities, functions. Support multi-digit computation through decomposition. Enable algebraic reasoning and formula application. Integrate with algorithmic continuation for sequences.
+\end{functiondesc}
+
+\begin{implementationbox}
+\mlpimpl{Arithmetic neurons (M-L, 0.40--0.70) encode mathematical operations and numerical relationships. Store mathematical facts and computation procedures.}\\
+\attnimpl{Mathematical-context heads (M, 0.45--0.65) recognize mathematical structures and retrieve relevant operations.}\\
+\circuitimpl{Number detection $\rightarrow$ operation selection $\rightarrow$ computation $\rightarrow$ result integration. Leverages algorithmic continuation mechanism.}
+\end{implementationbox}
+
+\begin{ablationbox}
+\textbf{Expected ablation:} Significant degradation in mathematical tasks. Major accuracy loss on arithmetic and quantitative reasoning. Notable difficulty with multi-digit computation. Reduced ability to apply formulas and mathematical procedures.
+\end{ablationbox}
+
+\begin{examplebox}
+\exinput{``If 3 apples cost \$2.40, how much do 5 apples cost?''}\\
+\exbehavior{Extract numbers, identify proportional relationship, compute (2.40/3)*5}\\
+\exeffect{Output ``\$4.00'' through mathematical reasoning}
+\end{examplebox}
+
+\mechfooter{\statusobs}{algorithmic-continuation, multi-step-reasoning}
+
+%-----------------------------------------------------------------------------
+\subsubsection{Causal Reasoning}
+\label{mech:causal-reasoning}
+
+\noindent\depthinfo{0.50--0.75} | \primaryimpl{MLP neurons + Attention heads} | \litnames{cause-effect, causal inference, counterfactual reasoning}
+
+\begin{functiondesc}
+Understand and reason about causal relationships. Distinguish causation from correlation. Predict effects from causes and infer causes from effects. Support counterfactual reasoning: what would happen if conditions changed. Enable temporal and mechanistic causal understanding. Integrate causal knowledge from training. Support explanation generation through causal chains.
+\end{functiondesc}
+
+\begin{implementationbox}
+\mlpimpl{Causal-knowledge neurons (M-L, 0.50--0.75) encode causal relationships and mechanisms learned from training data.}\\
+\attnimpl{Causal-linking heads (M-L, 0.55--0.70) attend to causally related events and connect causes to effects.}\\
+\circuitimpl{Event identification $\rightarrow$ causal relationship retrieval $\rightarrow$ inference $\rightarrow$ prediction or explanation.}
+\end{implementationbox}
+
+\begin{ablationbox}
+\textbf{Expected ablation:} Moderate loss of causal understanding. Increased confusion between correlation and causation. Notable degradation on counterfactual reasoning. Reduced ability to explain mechanisms. More associative than causal thinking.
+\end{ablationbox}
+
+\begin{examplebox}
+\exinput{``Why did the plant die?'' [Context: no water for weeks]}\\
+\exbehavior{Retrieve causal knowledge: lack of water causes plant death}\\
+\exeffect{Output explanation through causal reasoning, not just correlation}
+\end{examplebox}
+
+\mechfooter{\statusobs}{factual-retrieval, multi-step-reasoning, semantic-integration}
