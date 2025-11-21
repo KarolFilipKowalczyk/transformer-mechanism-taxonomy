@@ -118,35 +118,27 @@ Represent more features than available dimensions through sparse superposed enco
 \mechfooter{\statuswell}{nonlinear-composition, abstract-concepts}
 
 %-----------------------------------------------------------------------------
-\subsubsection{Infrastructure Primitives Mechanism}
+\subsubsection{Infrastructure Primitives}
 \label{mech:infrastructure-primitives}
 
-\noindent\depthinfo{N/A (architectural)} | \primaryimpl{See Appendix A} | \litnames{architectural primitives, foundational mechanisms}
+\noindent\depthinfo{N/A (architectural)} | \primaryimpl{Architecture} | \litnames{architectural primitives, foundational components}
 
 \begin{functiondesc}
-Brief reference entry linking to Appendix A containing architectural primitives without direct computational semantics. These foundational elements (residual connections, layer normalization, attention masking, embeddings, attention computation, gradient flow, tokenization) are essential for understanding transformer operation but are better documented separately as infrastructure rather than computational mechanisms in the main taxonomy.
+Architectural elements that enable computational mechanisms but are not mechanisms themselves. These are universal requirements for transformer operation: (1) \textbf{Residual Connections} - additive skip connections enabling gradient flow and cross-layer circuits, (2) \textbf{Layer Normalization} - activation stabilization applied before sublayers, (3) \textbf{Attention Masking} - causal masking preventing future token access, (4) \textbf{Embedding/Unembedding} - token$\leftrightarrow$vector conversion, (5) \textbf{Attention Computation} - scaled dot-product attention operation, (6) \textbf{Gradient Flow} - backpropagation infrastructure, (7) \textbf{Tokenization} - text$\leftrightarrow$token conversion (BPE), (8) \textbf{Positional Encoding} - sequence order information.
+
+These primitives enable rather than implement computation. Their role is architectural (determined by design) not learned (discovered through training). They differ from mechanisms by having no direct computational semantics - residual connections route information but don't decide what to route; layer normalization stabilizes activations but doesn't determine which features to extract.
 \end{functiondesc}
 
 \begin{implementationbox}
-See Appendix A for detailed descriptions of 8 infrastructure primitives:
-\begin{enumerate}[itemsep=0pt]
-\item Residual Connections
-\item Layer Normalization
-\item Attention Masking
-\item Embedding and Unembedding
-\item Attention Computation
-\item Gradient Flow
-\item Tokenization
-\item Feature Normalization
-\end{enumerate}
+\archimpl{Universal architectural requirements present in all transformer models. Residual stream composition: $h_{l+1} = h_l + \text{Attn}(h_l) + \text{MLP}(h_l + \text{Attn}(h_l))$. Pre-LN: normalization applied before sublayers. Causal masking: $M_{ij} = 0$ if $j \leq i$ else $-\infty$. Details in foundational architecture papers.}
 \end{implementationbox}
 
 \begin{ablationbox}
-\textbf{Expected ablation:} See individual infrastructure primitive descriptions in Appendix A. Generally catastrophic failures as these are foundational architectural requirements.
+\textbf{Expected ablation:} Catastrophic architectural failures. Removing any primitive fundamentally breaks transformer operation: no residual connections = training impossible beyond 3-5 layers; no layer norm = severe instability; no attention masking = autoregressive generation failure; no embeddings = cannot process tokens; no gradient flow = cannot train.
 \end{ablationbox}
 
 \begin{examplebox}
-Refer to Appendix A for examples of each infrastructure primitive.
+These are prerequisites for all transformer computation, not examples of specific mechanisms. See Vaswani et al. (2017), He et al. (2016), Ba et al. (2016) for architectural details.
 \end{examplebox}
 
 \mechfooter{\statuswell}{attention-mlp-composition, multi-head-coordination}
